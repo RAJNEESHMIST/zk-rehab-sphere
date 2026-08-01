@@ -121,6 +121,36 @@ export const SiteSettingsEditor: React.FC = () => {
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
               />
             </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">LinkedIn URL</label>
+              <input
+                type="text"
+                value={formData.socialLinks?.linkedin || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, linkedin: e.target.value },
+                  })
+                }
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">YouTube URL</label>
+              <input
+                type="text"
+                value={formData.socialLinks?.youtube || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, youtube: e.target.value },
+                  })
+                }
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-400"
+              />
+            </div>
           </div>
         </div>
 

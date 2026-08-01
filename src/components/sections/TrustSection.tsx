@@ -4,18 +4,14 @@ import { ShieldCheck, Award, HeartPulse, Sparkles, UserCheck, CheckCircle2, Chev
 import { useCursor } from '../../context/CursorContext';
 import { TrustPillar } from '../../types';
 
-import physioTreatment from '../../assets/physio-treatment.png';
-import receptionModern from '../../assets/reception-modern.png';
-import aboutImg from '../../assets/about.png';
-import physioGym from '../../assets/physio-gym.png';
-import zkReception from '../../assets/zk-reception.png';
+// Dynamic Unsplash images used for context-specific display
 
 const trustPillars: TrustPillar[] = [
   {
     id: 'doctor-patient',
     title: 'Certified Doctor Assessment',
     subtitle: 'Direct home consultation by clinical specialists',
-    image: physioTreatment,
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
     badge: '100% Verified Care',
     metrics: '8+ Years Expertise',
     details: [
@@ -28,7 +24,7 @@ const trustPillars: TrustPillar[] = [
     id: 'home-treatment',
     title: 'Sanitized Home Therapy',
     subtitle: 'Hospital-grade care in your living room comfort',
-    image: receptionModern,
+    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
     badge: 'Hygiene Assured',
     metrics: '500+ Active Patients',
     details: [
@@ -41,7 +37,7 @@ const trustPillars: TrustPillar[] = [
     id: 'evidence-care',
     title: 'Evidence-Based Protocols',
     subtitle: 'Scientifically validated physical rehabilitation',
-    image: aboutImg,
+    image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
     badge: 'Clinical Excellence',
     metrics: '98.4% Success Rate',
     details: [
@@ -54,7 +50,7 @@ const trustPillars: TrustPillar[] = [
     id: 'exercise-guidance',
     title: 'Supervised Functional Rehab',
     subtitle: 'Hands-on correction & posture retraining',
-    image: physioGym,
+    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     badge: 'Active Recovery',
     metrics: '1-on-1 Dedicated',
     details: [
@@ -67,7 +63,7 @@ const trustPillars: TrustPillar[] = [
     id: 'ethical-practice',
     title: 'Ethical & Compassionate Care',
     subtitle: 'Patient dignity and family peace of mind',
-    image: zkReception,
+    image: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
     badge: 'Trusted In Tricity',
     metrics: 'Chandigarh • Mohali • Kharar',
     details: [
@@ -134,74 +130,81 @@ export const TrustSection: React.FC = () => {
                 onClick={() => setActiveId(pillar.id)}
                 onMouseEnter={() => {
                   setCursorMode('explore');
-                  setCursorText('View Details');
+                  setCursorText('Explore');
                 }}
                 onMouseLeave={() => {
                   setCursorMode('default');
                   setCursorText('');
                 }}
-                className={`relative rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ${
+                className={`relative rounded-[32px] overflow-hidden cursor-pointer border transition-all duration-500 group ${
                   isActive
-                    ? 'lg:flex-[3] flex-1 border-cyan-400/50 shadow-[0_20px_50px_rgba(6,182,212,0.25)]'
-                    : 'lg:flex-[1] flex-none h-24 lg:h-auto border-white/10 opacity-70 hover:opacity-100 hover:border-cyan-400/30'
+                    ? 'lg:flex-[3.5] flex-1 border-cyan-400/60 shadow-[0_0_35px_rgba(6,182,212,0.3)] bg-slate-950/40'
+                    : 'lg:flex-[1] flex-none h-24 lg:h-auto border-white/10 opacity-75 hover:opacity-100 hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] bg-slate-950/80'
                 }`}
               >
                 {/* Real Photo Background */}
-                <img
+                <motion.img
                   src={pillar.image}
                   alt={pillar.title}
-                  className="absolute inset-0 w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-700"
+                  animate={{ scale: isActive ? 1.05 : 1 }}
+                  transition={{ duration: 0.8 }}
+                  className="absolute inset-0 w-full h-full object-cover transform filter brightness-[0.85] group-hover:brightness-100 transition-all duration-700"
                 />
 
                 {/* Dark Gradient Overlay */}
                 <div
                   className={`absolute inset-0 transition-opacity duration-500 bg-gradient-to-t ${
                     isActive
-                      ? 'from-slate-950 via-slate-950/75 to-slate-950/30'
-                      : 'from-slate-950/90 via-slate-950/60 to-slate-950/40'
+                      ? 'from-slate-950 via-slate-950/80 to-transparent'
+                      : 'from-slate-950/95 via-slate-950/70 to-slate-950/30'
                   }`}
                 />
 
+                {/* Pulsing card glow reflection */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                 {/* Pillar Badge */}
                 <div className="absolute top-4 left-4 z-20">
-                  <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 backdrop-blur-md text-[11px] font-extrabold uppercase tracking-wider text-cyan-300">
+                  <span className="px-3.5 py-1.5 rounded-full bg-slate-950/90 border border-cyan-400/40 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-cyan-300">
                     {pillar.badge}
                   </span>
                 </div>
 
                 {/* Content Container */}
-                <div className="absolute inset-0 p-6 lg:p-8 z-20 flex flex-col justify-end">
-                  {/* Collapsed State Title */}
+                <div className="absolute inset-0 p-6 lg:p-8 z-20 flex flex-col justify-end h-full">
+                  {/* Collapsed State Title (Rotated Vertical on Desktop for Premium Aesthetic) */}
                   {!isActive && (
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-white tracking-wide truncate">
+                    <div className="flex lg:flex-col items-center justify-between lg:h-3/4 lg:justify-end gap-6 w-full pb-2">
+                      <h3 className="text-sm font-black text-slate-300 tracking-widest lg:[writing-mode:vertical-lr] lg:rotate-180 uppercase whitespace-nowrap group-hover:text-cyan-300 transition-colors">
                         {pillar.title}
                       </h3>
-                      <ChevronRight size={20} className="text-cyan-400 shrink-0" />
+                      <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-400 group-hover:text-slate-950 transition-all shrink-0">
+                        <ChevronRight size={16} className="lg:rotate-90" />
+                      </div>
                     </div>
                   )}
 
                   {/* Expanded State Full View */}
                   {isActive && (
                     <motion.div
-                      initial={{ opacity: 0, y: 15 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                       className="space-y-4 max-w-xl"
                     >
-                      <div className="inline-block text-xs font-bold text-cyan-400 uppercase tracking-widest bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/20">
+                      <div className="inline-block text-[10px] font-black text-cyan-300 uppercase tracking-widest bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/30">
                         {pillar.metrics}
                       </div>
 
-                      <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                      <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                         {pillar.title}
                       </h3>
 
-                      <p className="text-sm text-slate-300 font-medium">
+                      <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
                         {pillar.subtitle}
                       </p>
 
-                      <div className="space-y-2 pt-2 border-t border-white/10">
+                      <div className="space-y-2 pt-3 border-t border-white/10">
                         {pillar.details.map((detail, idx) => (
                           <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
                             <CheckCircle2 size={16} className="text-cyan-400 shrink-0 mt-0.5" />

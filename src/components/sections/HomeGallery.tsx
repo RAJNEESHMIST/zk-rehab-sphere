@@ -1,86 +1,136 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image as ImageIcon, Sparkles, X, Maximize2, Sliders } from 'lucide-react';
+import { Image as ImageIcon, X, Maximize2, Sliders } from 'lucide-react';
 import { useCursor } from '../../context/CursorContext';
+import { useSiteData } from '../../context/SiteDataContext';
 import { GalleryItem } from '../../types';
 
-import physioTreatment from '../../assets/physio-treatment.png';
-import receptionModern from '../../assets/reception-modern.png';
-import physioGym from '../../assets/physio-gym.png';
-import heroImg from '../../assets/hero.png';
-import aboutImg from '../../assets/about.png';
-import service1 from '../../assets/service-1.png';
-import service3 from '../../assets/service-3.png';
-import portableElectrotherapy from '../../assets/portable-electrotherapy.png';
-
-const galleryData: GalleryItem[] = [
+// Fallback high-quality recovery cards if IndexedDB is still loading/empty
+const fallbackGallery: GalleryItem[] = [
+  // Neurological Care
   {
     id: 'gal-1',
     title: 'Stroke Rehabilitation Home Session',
     category: 'Neurological Care',
-    image: physioTreatment,
-    beforeImage: service1,
-    afterImage: physioTreatment,
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1581071805260-15cc9c47d272?auto=format&fit=crop&w=800&q=80',
+    afterImage: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
     caption: 'Patient undergoing upper limb neuro-plasticity & functional movement retraining in Sector 34, Chandigarh.',
     location: 'Chandigarh'
   },
   {
     id: 'gal-2',
-    title: 'Total Knee Replacement (TKR) Gait Retraining',
-    category: 'Orthopedic Rehab',
-    image: receptionModern,
-    beforeImage: service3,
-    afterImage: receptionModern,
-    caption: 'Progressive unassisted weight-bearing practice 3 weeks post knee replacement surgery.',
+    title: "Parkinson's Tremor Management",
+    category: 'Neurological Care',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80',
+    caption: 'Coordination and progressive balance exercise session under therapist supervision.',
     location: 'Mohali'
   },
   {
     id: 'gal-3',
-    title: 'Portable Electrotherapy & Ultrasound Setup',
-    category: 'Advanced Equipment',
-    image: portableElectrotherapy,
-    caption: 'Hospital-grade portable electrotherapy & ultrasound modalities brought directly to the patient’s bedside for targeted pain alleviation.',
+    title: 'Balance & Gait Mobility Training',
+    category: 'Neurological Care',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    caption: 'Preventing fall risks and correcting biomechanical walking patterns for geriatric safety.',
     location: 'Kharar'
   },
+
+  // Orthopedic Rehab
   {
     id: 'gal-4',
-    title: 'Geriatric Balance & Fall Prevention',
-    category: 'Geriatric Rehab',
-    image: physioGym,
-    beforeImage: heroImg,
-    afterImage: physioGym,
-    caption: 'Proprioception and posture realignment exercises for elderly patient with Parkinson’s.',
+    title: 'Post Knee Replacement flexion mobilization',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
+    afterImage: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+    caption: 'Progressive unassisted weight-bearing practice 3 weeks post knee replacement surgery.',
     location: 'Chandigarh'
   },
   {
     id: 'gal-5',
-    title: 'Spinal Decompression & Sciatica Manual Therapy',
-    category: 'Spine Care',
-    image: heroImg,
-    caption: 'McKenzie disc centralization and sciatic nerve mobilization for acute L4-L5 herniation.',
+    title: 'ACL Ligament Tear Rehabilitation',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1519826314078-191d81bf10b0?auto=format&fit=crop&w=800&q=80',
+    caption: 'Targeted strengthening of the quadriceps and hamstring muscle group post injury.',
     location: 'Mohali'
   },
   {
     id: 'gal-6',
-    title: 'Clinical Consultation & Diagnostic Assessment',
-    category: 'Diagnostic Evaluation',
-    image: aboutImg,
-    caption: 'Founder Sajid Khan evaluating spinal mobility arc during initial home consultation.',
+    title: 'Adhesive Capsulitis (Frozen Shoulder) Therapy',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    caption: 'Joint mobilization maneuvers and passive stretching routines to restore functional arc.',
+    location: 'Kharar'
+  },
+
+  // Spine Care
+  {
+    id: 'gal-7',
+    title: 'Lumbar Disc Herniation Decompression',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    caption: 'McKenzie mechanical diagnosis spinal retraction and lumbar posture corrections.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-8',
+    title: 'Cervical Spondylosis Manual Traction',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1620188467120-5042ed1eb5da?auto=format&fit=crop&w=800&q=80',
+    caption: 'Bedside manual traction to relieve nerve pressure and reduce acute cervical radiation.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-9',
+    title: 'Spinal Alignment & Posture Scan',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    caption: 'Assessing muscular balance and spinal curvatures to correct seated ergonomics.',
+    location: 'Kharar'
+  },
+
+  // Advanced Equipment
+  {
+    id: 'gal-10',
+    title: 'Portable Ultrasound Therapy Session',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+    caption: 'Hospital-grade portable electrotherapy & ultrasound modalities brought directly to the patient’s bedside for targeted pain alleviation.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-11',
+    title: 'Dual Channel TENS Muscle Stimulation',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+    caption: 'Targeted nerve stimulation and pain gating therapy for chronic joint arthrosis.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-12',
+    title: 'Bedside Mechanical Spine Decompression',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
+    caption: 'Deploying high-traction decompression belts to reduce sciatic radiation.',
     location: 'Kharar'
   }
 ];
 
 export const HomeGallery: React.FC = () => {
+  const { gallery } = useSiteData();
   const { setCursorMode, setCursorText } = useCursor();
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
-  const [activeLightboxItem, setActiveLightboxItem] = useState<GalleryItem | null>(null);
+  const [activeLightboxItem, setActiveLightboxItem] = useState<any | null>(null);
   const [sliderPosition, setSliderPosition] = useState<number>(50);
 
   const categories = ['All', 'Neurological Care', 'Orthopedic Rehab', 'Spine Care', 'Advanced Equipment'];
 
+  // Fallback to local array if database items haven't finished loading/seeding
+  const activeGalleryItems = gallery && gallery.length > 0 ? gallery : fallbackGallery;
+
   const filteredItems = selectedFilter === 'All'
-    ? galleryData
-    : galleryData.filter((item) => item.category === selectedFilter);
+    ? activeGalleryItems
+    : activeGalleryItems.filter((item) => item.category === selectedFilter);
 
   return (
     <section id="gallery" className="py-24 relative overflow-hidden bg-slate-950/90">
@@ -128,7 +178,7 @@ export const HomeGallery: React.FC = () => {
             <button
               key={cat}
               onClick={() => setSelectedFilter(cat)}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
                 selectedFilter === cat
                   ? 'bg-gradient-to-r from-cyan-400 to-teal-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] scale-105'
                   : 'bg-white/5 border border-white/10 text-slate-300 hover:border-cyan-400/40 hover:text-white'
@@ -166,7 +216,7 @@ export const HomeGallery: React.FC = () => {
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   {/* Subtle Dark Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />

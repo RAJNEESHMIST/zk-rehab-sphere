@@ -9,13 +9,15 @@ import { MediaLibrary } from './MediaLibrary';
 import { SiteSettingsEditor } from './SiteSettings';
 import { ReviewManager } from './ReviewManager';
 
+import { GalleryManager } from './GalleryManager';
+
 export const AdminLayout: React.FC = () => {
   const { isAdmin, login, logout } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery'>('dashboard');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +141,7 @@ export const AdminLayout: React.FC = () => {
                 { id: 'experts', label: 'Doctors / Experts', icon: <UserCheck size={18} /> },
                 { id: 'blogs', label: 'Articles & Blogs', icon: <FileText size={18} /> },
                 { id: 'reviews', label: 'Review Moderation', icon: <Star size={18} /> },
+                { id: 'gallery', label: 'Patient Gallery', icon: <ImageIcon size={18} /> },
                 { id: 'media', label: 'Media Library', icon: <ImageIcon size={18} /> },
                 { id: 'settings', label: 'Site Settings', icon: <SettingsIcon size={18} /> },
               ].map((tab) => {
@@ -178,6 +181,7 @@ export const AdminLayout: React.FC = () => {
             {activeTab === 'experts' && <ExpertManager />}
             {activeTab === 'blogs' && <BlogManager />}
             {activeTab === 'reviews' && <ReviewManager />}
+            {activeTab === 'gallery' && <GalleryManager />}
             {activeTab === 'media' && <MediaLibrary />}
             {activeTab === 'settings' && <SiteSettingsEditor />}
           </div>

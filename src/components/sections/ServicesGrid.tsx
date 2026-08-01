@@ -1,108 +1,302 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, X, CheckCircle2, Calendar, Shield } from 'lucide-react';
-import { useSiteData } from '../../context/SiteDataContext';
-import { GlassCube3D } from '../3d/GlassCube3D';
-import { Service } from '../../types';
+import { 
+  Activity, Calendar, Star, Clock, Brain, Dumbbell, ShieldAlert, Award, 
+  Sparkles, ShieldCheck, HeartPulse, Accessibility, Compass, Zap, Cpu
+} from 'lucide-react';
+
+interface TreatmentCard {
+  id: string;
+  title: string;
+  category: 'Neurological Care' | 'Orthopedic Rehab' | 'Spine Care' | 'Advanced Equipment';
+  description: string;
+  duration: string;
+  recoveryLevel: number;
+  image: string;
+  icon: React.ReactNode;
+}
 
 interface ServicesGridProps {
   onOpenBooking: (serviceName?: string) => void;
 }
 
 export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => {
-  const { services } = useSiteData();
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>('All');
+  const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+
+  const categories = ['All', 'Neurological Care', 'Orthopedic Rehab', 'Spine Care', 'Advanced Equipment'];
+
+  const treatments: TreatmentCard[] = [
+    // Neurological Care
+    {
+      id: 'neuro-1',
+      title: 'Stroke Rehabilitation',
+      category: 'Neurological Care',
+      description: 'Personalized recovery programs to improve mobility, balance, strength, and independence after stroke.',
+      duration: '8–12 Weeks',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1581071805260-15cc9c47d272?auto=format&fit=crop&w=800&q=80',
+      icon: <Brain className="text-cyan-400" size={20} />
+    },
+    {
+      id: 'neuro-2',
+      title: "Parkinson's Therapy",
+      category: 'Neurological Care',
+      description: 'Improve gait, coordination, flexibility, and quality of life with evidence-based exercises.',
+      duration: '6–10 Weeks',
+      recoveryLevel: 4,
+      image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+      icon: <HeartPulse className="text-teal-400" size={20} />
+    },
+    {
+      id: 'neuro-3',
+      title: 'Balance & Gait Training',
+      category: 'Neurological Care',
+      description: 'Advanced therapy focused on improving walking patterns and preventing falls.',
+      duration: '4–8 Weeks',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+      icon: <Accessibility className="text-sky-400" size={20} />
+    },
+
+    // Orthopedic Rehab
+    {
+      id: 'ortho-1',
+      title: 'Post Surgery Rehabilitation',
+      category: 'Orthopedic Rehab',
+      description: 'Accelerated recovery after knee replacement, ACL reconstruction, fractures, and orthopedic surgeries.',
+      duration: '6–16 Weeks',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
+      icon: <Dumbbell className="text-cyan-400" size={20} />
+    },
+    {
+      id: 'ortho-2',
+      title: 'Sports Injury Rehabilitation',
+      category: 'Orthopedic Rehab',
+      description: 'Restore performance after ligament injuries, muscle tears, sprains, and overuse injuries.',
+      duration: '4–12 Weeks',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+      icon: <Activity className="text-teal-400" size={20} />
+    },
+    {
+      id: 'ortho-3',
+      title: 'Joint Pain Management',
+      category: 'Orthopedic Rehab',
+      description: 'Reduce pain and restore movement for shoulder, hip, elbow, and knee disorders.',
+      duration: '4–8 Weeks',
+      recoveryLevel: 4,
+      image: 'https://images.unsplash.com/photo-1582719471384-894fca16e374?auto=format&fit=crop&w=800&q=80',
+      icon: <Compass className="text-sky-400" size={20} />
+    },
+
+    // Spine Care
+    {
+      id: 'spine-1',
+      title: 'Cervical Pain Therapy',
+      category: 'Spine Care',
+      description: 'Effective treatment for neck stiffness, cervical spondylosis, and posture correction.',
+      duration: '4–8 Weeks',
+      recoveryLevel: 4,
+      image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+      icon: <Award className="text-cyan-400" size={20} />
+    },
+    {
+      id: 'spine-2',
+      title: 'Lower Back Pain Therapy',
+      category: 'Spine Care',
+      description: 'Evidence-based rehabilitation for chronic and acute lower back pain.',
+      duration: '6 Weeks',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+      icon: <ShieldCheck className="text-teal-400" size={20} />
+    },
+    {
+      id: 'spine-3',
+      title: 'Posture Correction Program',
+      category: 'Spine Care',
+      description: 'Improve spinal alignment, ergonomics, and muscular balance for long-term health.',
+      duration: '4 Weeks',
+      recoveryLevel: 4,
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+      icon: <Sparkles className="text-sky-400" size={20} />
+    },
+
+    // Advanced Equipment
+    {
+      id: 'equip-1',
+      title: 'Shockwave Therapy',
+      category: 'Advanced Equipment',
+      description: 'Non-invasive treatment for chronic tendon pain and musculoskeletal disorders.',
+      duration: '6 Sessions',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
+      icon: <Zap className="text-cyan-400" size={20} />
+    },
+    {
+      id: 'equip-2',
+      title: 'Electrotherapy',
+      category: 'Advanced Equipment',
+      description: 'Pain management and muscle stimulation using advanced electrotherapy devices.',
+      duration: '10 Sessions',
+      recoveryLevel: 4,
+      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+      icon: <Cpu className="text-teal-400" size={20} />
+    },
+    {
+      id: 'equip-3',
+      title: 'Robotic Rehabilitation',
+      category: 'Advanced Equipment',
+      description: 'Technology-assisted rehabilitation for neurological and orthopedic patients.',
+      duration: 'Custom Plan',
+      recoveryLevel: 5,
+      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+      icon: <Accessibility className="text-sky-400" size={20} />
+    }
+  ];
+
+  const filteredTreatments = selectedFilter === 'All'
+    ? treatments
+    : treatments.filter((t) => t.category === selectedFilter);
 
   return (
-    <section id="services" className="py-24 relative z-10 overflow-hidden">
+    <section id="services" className="py-24 relative z-10 overflow-hidden bg-slate-950">
+      
+      {/* Visual background lights */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[160px] pointer-events-none" />
+
       <div className="container mx-auto px-4">
+        
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30">
-            Rehabilitation Offerings
+            Rehabilitation Categories
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            Specialized Care At Your <span className="text-gradient">Doorstep</span>
+            Our Specialised <span className="text-gradient">Treatment Modalities</span>
           </h2>
-          <p className="text-base text-slate-300">
-            Evidence-based physiotherapy programs designed for stroke recovery, joint replacement, spinal health, and home care across Chandigarh Tricity.
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Select a specialized category below to explore clinical-grade protocols conducted directly in your home.
           </p>
         </div>
 
-        {/* 3D Glass Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {services.map((service) => (
-            <GlassCube3D key={service.id} service={service} onSelectService={setSelectedService} />
+        {/* Filter Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedFilter(cat)}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
+                selectedFilter === cat
+                  ? 'bg-gradient-to-r from-cyan-400 to-teal-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] scale-105'
+                  : 'bg-white/5 border border-white/10 text-slate-300 hover:border-cyan-400/40 hover:text-white'
+              }`}
+            >
+              {cat}
+            </button>
           ))}
         </div>
-      </div>
 
-      {/* Service Detail Modal */}
-      <AnimatePresence>
-        {selectedService && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-2xl rounded-3xl glass-panel border border-cyan-500/30 p-8 text-white shadow-2xl overflow-y-auto max-h-[90vh]"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedService(null)}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-all"
+        {/* Dynamic Responsive Treatment Cards Grid */}
+        <motion.div 
+          layout 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredTreatments.map((t) => (
+              <motion.div
+                key={t.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                onMouseEnter={() => setHoveredCardId(t.id)}
+                onMouseLeave={() => setHoveredCardId(null)}
+                className="group relative rounded-[24px] overflow-hidden glass-panel border border-white/10 hover:border-cyan-400/50 shadow-xl flex flex-col justify-between h-[480px] bg-slate-950/80 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(6,182,212,0.2)]"
+                style={{
+                  transform: hoveredCardId === t.id ? 'translateY(-6px)' : 'none'
+                }}
               >
-                <X size={20} />
-              </button>
-
-              {/* Service Hero Image */}
-              <div className="relative w-full h-56 rounded-2xl overflow-hidden mb-6 border border-white/10 bg-slate-900">
-                <img src={selectedService.image} alt={selectedService.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <span className="absolute bottom-4 left-4 text-xs font-bold uppercase tracking-wider text-cyan-300 bg-slate-950/80 px-3 py-1 rounded-full border border-cyan-400/30">
-                  {selectedService.category}
-                </span>
-              </div>
-
-              {/* Content */}
-              <h3 className="text-3xl font-black text-white mb-4">{selectedService.title}</h3>
-              <p className="text-slate-300 leading-relaxed mb-6">{selectedService.description}</p>
-
-              <h4 className="text-sm font-bold uppercase tracking-wider text-cyan-400 mb-3">Key Clinical Protocol Highlights</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                {selectedService.features.map((feat, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-slate-200">
-                    <CheckCircle2 size={16} className="text-cyan-400 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
+                
+                {/* Top Image Panel */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={t.image}
+                    alt={t.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {/* Neon Soft Gradient bottom overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  
+                  {/* Floating category badge & medical icon */}
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-slate-950/80 border border-cyan-400/30 text-[9px] font-black uppercase text-cyan-300 backdrop-blur-md">
+                      {t.category}
+                    </span>
                   </div>
-                ))}
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 pt-4 border-t border-white/10">
-                <button
-                  onClick={() => {
-                    const title = selectedService.title;
-                    setSelectedService(null);
-                    onOpenBooking(title);
-                  }}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-teal-300 hover:scale-[1.02] transition-all shadow-lg shadow-cyan-500/20"
-                >
-                  <Calendar size={18} />
-                  <span>Book This Service at Home</span>
-                </button>
+                  <div className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-slate-950/80 border border-white/20 flex items-center justify-center backdrop-blur-md">
+                    {t.icon}
+                  </div>
+                </div>
 
-                <button
-                  onClick={() => setSelectedService(null)}
-                  className="px-6 py-3.5 rounded-xl font-bold text-slate-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-                >
-                  Close
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                {/* Body Content */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-cyan-300 transition-colors">
+                      {t.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-medium line-clamp-2">
+                      {t.description}
+                    </p>
+                  </div>
+
+                  {/* Metadata Row */}
+                  <div className="flex items-center justify-between text-xs border-t border-white/5 pt-3">
+                    <span className="flex items-center gap-1.5 text-slate-400 font-bold">
+                      <Clock size={13} className="text-cyan-400" />
+                      {t.duration}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="text-[10px] text-slate-500 font-bold mr-1">Recovery:</span>
+                      <div className="flex text-amber-400 gap-0.5">
+                        {[...Array(t.recoveryLevel)].map((_, i) => (
+                          <Star key={i} size={11} className="fill-amber-400" />
+                        ))}
+                        {[...Array(5 - t.recoveryLevel)].map((_, i) => (
+                          <Star key={i} size={11} className="text-slate-700" />
+                        ))}
+                      </div>
+                    </span>
+                  </div>
+
+                  {/* CTA Buttons */}
+                  <div className="flex gap-2.5 pt-2">
+                    <button
+                      onClick={() => onOpenBooking(t.title)}
+                      className="flex-1 py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 to-teal-300 hover:scale-105 active:scale-95 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] cursor-pointer"
+                    >
+                      Book Visit
+                    </button>
+                    <button
+                      onClick={() => onOpenBooking(t.title)}
+                      className="flex-1 py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-200 bg-white/5 border border-white/10 hover:border-cyan-400/40 hover:text-white transition-all cursor-pointer"
+                    >
+                      Learn More
+                    </button>
+                  </div>
+
+                </div>
+
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+      </div>
     </section>
   );
 };

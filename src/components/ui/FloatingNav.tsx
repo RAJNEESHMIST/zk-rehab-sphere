@@ -30,17 +30,21 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
 
   const navItems = [
     { label: 'Home', href: '#home' },
-    { label: 'Why Trust Us', href: '#trust' },
-    { label: 'Founder', href: '#about-founder' },
+    { label: 'Conditions', href: '#navigator' },
     { label: 'Services', href: '#services' },
-    { label: 'Body Explorer', href: '#navigator' },
     { label: 'Doctors', href: '#experts' },
-    { label: 'Reviews', href: '#reviews' },
+    { label: 'Reviews', href: '#testimonials' },
+    { label: 'Gallery', href: '#gallery' },
+    { label: 'Contact', href: '#contact' },
     { label: 'Blog', href: '#blog' },
   ];
 
   const handleNavClick = (href: string) => {
     setMobileMenuOpen(false);
+    if (href === '#book') {
+      onOpenBooking();
+      return;
+    }
     setActiveSection(href.replace('#', ''));
     const el = document.querySelector(href);
     if (el) {
@@ -86,8 +90,8 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             </div>
           </a>
 
-          {/* Desktop Navigation Links (XL 1280px+) */}
-          <div className="hidden xl:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-full border border-cyan-500/20 shadow-inner shrink-0">
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-full border border-cyan-500/20 shadow-inner shrink-0">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
@@ -105,35 +109,6 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
                   {isActive && (
                     <motion.div
                       layoutId="navPill"
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                  <span className="relative z-10">{item.label}</span>
-                </a>
-              );
-            })}
-          </div>
-
-          {/* Medium Screen Compact Navigation Links (LG 1024px - 1279px) */}
-          <div className="hidden lg:flex xl:hidden items-center gap-1 bg-slate-900/90 p-1 rounded-full border border-cyan-500/20 shadow-inner shrink-0">
-            {navItems.slice(0, 5).map((item) => {
-              const isActive = activeSection === item.href.replace('#', '');
-              return (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavClick(item.href);
-                  }}
-                  className={`relative px-2.5 py-1 text-xs font-extrabold rounded-full whitespace-nowrap transition-all duration-300 ${
-                    isActive ? 'text-slate-950 font-black' : 'text-slate-200 hover:text-white'
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="navPillCompact"
                       className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 shadow-[0_0_15px_rgba(6,182,212,0.5)]"
                       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
@@ -187,7 +162,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             {/* Mobile / Tablet Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-xl bg-white/10 border border-white/10 text-slate-200 hover:text-white shrink-0"
+              className="lg:hidden p-2 rounded-xl bg-white/10 border border-white/10 text-slate-200 hover:text-white shrink-0"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -204,7 +179,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="xl:hidden pointer-events-auto mt-2 mx-auto max-w-7xl rounded-2xl bg-slate-950/95 backdrop-blur-2xl border border-cyan-500/30 p-5 shadow-2xl space-y-4"
+            className="lg:hidden pointer-events-auto mt-2 mx-auto max-w-7xl rounded-2xl bg-slate-950/95 backdrop-blur-2xl border border-cyan-500/30 p-5 shadow-2xl space-y-4"
           >
             <div className="grid grid-cols-2 gap-2">
               {navItems.map((item) => (

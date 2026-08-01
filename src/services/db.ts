@@ -1,11 +1,11 @@
 import { openDB, IDBPDatabase } from 'idb';
-import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem } from '../types';
+import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem } from '../types';
 import { initialExperts, initialServices, initialBlogPosts, initialResources, initialSiteSettings, initialReviews } from './seedData';
 import { db as firestoreDb } from './firebase';
 import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 
 const DB_NAME = 'ZK_Rehab_Sphere_DB';
-const DB_VERSION = 2;
+const DB_VERSION = 4;
 
 export interface ZKDatabase {
   settings: SiteSettings;
@@ -16,6 +16,7 @@ export interface ZKDatabase {
   media: MediaItem[];
   appointments: AppointmentBooking[];
   reviews: ReviewItem[];
+  gallery: GalleryItem[];
 }
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
@@ -48,11 +49,125 @@ export const getDB = () => {
         if (!db.objectStoreNames.contains('reviews')) {
           db.createObjectStore('reviews', { keyPath: 'id' });
         }
+        if (!db.objectStoreNames.contains('gallery')) {
+          db.createObjectStore('gallery', { keyPath: 'id' });
+        }
       },
     });
   }
   return dbPromise;
 };
+
+// Initial dynamic gallery items seed data
+const initialGalleryItems: GalleryItem[] = [
+  // Neurological Care
+  {
+    id: 'gal-1',
+    title: 'Stroke Rehabilitation Home Session',
+    category: 'Neurological Care',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1581071805260-15cc9c47d272?auto=format&fit=crop&w=800&q=80',
+    afterImage: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
+    caption: 'Patient undergoing upper limb neuro-plasticity & functional movement retraining in Sector 34, Chandigarh.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-2',
+    title: "Parkinson's Tremor Management",
+    category: 'Neurological Care',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80',
+    caption: 'Coordination and progressive balance exercise session under therapist supervision.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-3',
+    title: 'Balance & Gait Mobility Training',
+    category: 'Neurological Care',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    caption: 'Preventing fall risks and correcting biomechanical walking patterns for geriatric safety.',
+    location: 'Kharar'
+  },
+
+  // Orthopedic Rehab
+  {
+    id: 'gal-4',
+    title: 'Post Knee Replacement flexion mobilization',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+    beforeImage: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
+    afterImage: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+    caption: 'Progressive unassisted weight-bearing practice 3 weeks post knee replacement surgery.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-5',
+    title: 'ACL Ligament Tear Rehabilitation',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1519826314078-191d81bf10b0?auto=format&fit=crop&w=800&q=80',
+    caption: 'Targeted strengthening of the quadriceps and hamstring muscle group post injury.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-6',
+    title: 'Adhesive Capsulitis (Frozen Shoulder) Therapy',
+    category: 'Orthopedic Rehab',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    caption: 'Joint mobilization maneuvers and passive stretching routines to restore functional arc.',
+    location: 'Kharar'
+  },
+
+  // Spine Care
+  {
+    id: 'gal-7',
+    title: 'Lumbar Disc Herniation Decompression',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    caption: 'McKenzie mechanical diagnosis spinal retraction and lumbar posture corrections.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-8',
+    title: 'Cervical Spondylosis Manual Traction',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1620188467120-5042ed1eb5da?auto=format&fit=crop&w=800&q=80',
+    caption: 'Bedside manual traction to relieve nerve pressure and reduce acute cervical radiation.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-9',
+    title: 'Spinal Alignment & Posture Scan',
+    category: 'Spine Care',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    caption: 'Assessing muscular balance and spinal curvatures to correct seated ergonomics.',
+    location: 'Kharar'
+  },
+
+  // Advanced Equipment
+  {
+    id: 'gal-10',
+    title: 'Portable Ultrasound Therapy Session',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+    caption: 'Hospital-grade portable electrotherapy & ultrasound modalities brought directly to the patient’s bedside for targeted pain alleviation.',
+    location: 'Chandigarh'
+  },
+  {
+    id: 'gal-11',
+    title: 'Dual Channel TENS Muscle Stimulation',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+    caption: 'Targeted nerve stimulation and pain gating therapy for chronic joint arthrosis.',
+    location: 'Mohali'
+  },
+  {
+    id: 'gal-12',
+    title: 'Bedside Mechanical Spine Decompression',
+    category: 'Advanced Equipment',
+    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
+    caption: 'Deploying high-traction decompression belts to reduce sciatic radiation.',
+    location: 'Kharar'
+  }
+];
 
 export const initDBSeedData = async (): Promise<void> => {
   try {
@@ -110,6 +225,16 @@ export const initDBSeedData = async (): Promise<void> => {
       const tx = db.transaction('reviews', 'readwrite');
       for (const rev of initialReviews) {
         await tx.store.put(rev);
+      }
+      await tx.done;
+    }
+
+    // Seed Gallery if empty
+    const galleryCount = await db.count('gallery');
+    if (galleryCount === 0) {
+      const tx = db.transaction('gallery', 'readwrite');
+      for (const item of initialGalleryItems) {
+        await tx.store.put(item);
       }
       await tx.done;
     }
@@ -342,6 +467,47 @@ export const dbService = {
       } catch (e) {
         console.warn('Firestore update review warning:', e);
       }
+    }
+  },
+
+  // Gallery
+  async getGallery(): Promise<GalleryItem[]> {
+    try {
+      if (firestoreDb) {
+        const querySnapshot = await getDocs(collection(firestoreDb, 'gallery'));
+        if (!querySnapshot.empty) {
+          const list: GalleryItem[] = [];
+          querySnapshot.forEach((docSnap) => list.push(docSnap.data() as GalleryItem));
+          return list;
+        }
+      }
+    } catch (e) {
+      console.warn('Firestore fetch gallery warning:', e);
+    }
+    const db = await getDB();
+    const gallery = await db.getAll('gallery');
+    return gallery.length ? gallery : initialGalleryItems;
+  },
+  async saveGalleryItem(item: GalleryItem): Promise<void> {
+    const db = await getDB();
+    await db.put('gallery', item);
+    try {
+      if (firestoreDb) {
+        await setDoc(doc(firestoreDb, 'gallery', item.id), item);
+      }
+    } catch (e) {
+      console.warn('Firestore save gallery item warning:', e);
+    }
+  },
+  async deleteGalleryItem(id: string): Promise<void> {
+    const db = await getDB();
+    await db.delete('gallery', id);
+    try {
+      if (firestoreDb) {
+        await deleteDoc(doc(firestoreDb, 'gallery', id));
+      }
+    } catch (e) {
+      console.warn('Firestore delete gallery item warning:', e);
     }
   }
 };

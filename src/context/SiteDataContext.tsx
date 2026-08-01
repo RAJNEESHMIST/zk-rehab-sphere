@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem } from '../types';
+import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem } from '../types';
 import { dbService, initDBSeedData } from '../services/db';
 
 interface SiteDataContextType {
@@ -11,6 +11,7 @@ interface SiteDataContextType {
   media: MediaItem[];
   appointments: AppointmentBooking[];
   reviews: ReviewItem[];
+  gallery: GalleryItem[];
   loading: boolean;
   refreshData: () => Promise<void>;
   updateSettings: (newSettings: SiteSettings) => Promise<void>;
@@ -22,6 +23,8 @@ interface SiteDataContextType {
   deleteResource: (id: string) => Promise<void>;
   saveMedia: (item: MediaItem) => Promise<void>;
   deleteMedia: (id: string) => Promise<void>;
+  saveGalleryItem: (item: GalleryItem) => Promise<void>;
+  deleteGalleryItem: (id: string) => Promise<void>;
   bookAppointment: (appointment: Omit<AppointmentBooking, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   updateAppointmentStatus: (id: string, status: AppointmentBooking['status']) => Promise<void>;
   saveReview: (review: ReviewItem) => Promise<void>;
@@ -41,13 +44,14 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [appointments, setAppointments] = useState<AppointmentBooking[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const loadAllData = async () => {
     setLoading(true);
     try {
       await initDBSeedData();
-      const [st, ex, sv, bl, rs, md, ap, rv] = await Promise.all([
+      const [st, ex, sv, bl, rs, md, ap, rv, gl] = await Promise.all([
         dbService.getSettings(),
         dbService.getExperts(),
         dbService.getServices(),
@@ -56,6 +60,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         dbService.getMedia(),
         dbService.getAppointments(),
         dbService.getReviews(),
+        dbService.getGallery(),
       ]);
       setSettings(st);
       setExperts(ex);
@@ -65,6 +70,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setMedia(md);
       setAppointments(ap);
       setReviews(rv);
+      setGallery(gl);
     } catch (err) {
       console.error('Error loading SiteData from IndexedDB:', err);
     } finally {
@@ -129,6 +135,18 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setMedia(updated);
   };
 
+  const handleSaveGalleryItem = async (item: GalleryItem) => {
+    await dbService.saveGalleryItem(item);
+    const updated = await dbService.getGallery();
+    setGallery(updated);
+  };
+
+  const handleDeleteGalleryItem = async (id: string) => {
+    await dbService.deleteGalleryItem(id);
+    const updated = await dbService.getGallery();
+    setGallery(updated);
+  };
+
   const handleBookAppointment = async (apptData: Omit<AppointmentBooking, 'id' | 'createdAt' | 'status'>) => {
     const newAppt: AppointmentBooking = {
       ...apptData,
@@ -142,27 +160,41 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const handleUpdateAppointmentStatus = async (id: string, status: AppointmentBooking['status']) => {
-    await dbService.updateAppointmentStatus(id, status);
-    const updated = await dbService.getAppointments();
-    setAppointments(updated);
+    // Optimistic local state update
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status } : a))
+    );
+    // Background save
+    dbService.updateAppointmentStatus(id, status).catch((e) => console.warn('Background update appt warning:', e));
   };
 
   const handleSaveReview = async (review: ReviewItem) => {
-    await dbService.saveReview(review);
-    const updated = await dbService.getReviews();
-    setReviews(updated);
+    // Optimistic local state update
+    setReviews((prev) =>
+      prev.map((r) => (r.id === review.id ? review : r))
+    );
+    // Background save
+    dbService.saveReview(review).catch((e) => console.warn('Background save review warning:', e));
   };
 
   const handleDeleteReview = async (id: string) => {
-    await dbService.deleteReview(id);
-    const updated = await dbService.getReviews();
-    setReviews(updated);
+    // Optimistic local state update
+    setReviews((prev) => prev.filter((r) => r.id !== id));
+    // Background delete
+    dbService.deleteReview(id).catch((e) => console.warn('Background delete review warning:', e));
   };
 
   const handleUpdateReviewStatus = async (id: string, status: ReviewItem['status']) => {
-    await dbService.updateReviewStatus(id, status);
-    const updated = await dbService.getReviews();
-    setReviews(updated);
+    // Optimistic local state update
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? { ...r, status, isVerified: status === 'approved' ? true : r.isVerified }
+          : r
+      )
+    );
+    // Background status update
+    dbService.updateReviewStatus(id, status).catch((e) => console.warn('Background update review warning:', e));
   };
 
   const handleSubmitPublicReview = async (reviewData: Omit<ReviewItem, 'id' | 'createdAt' | 'status' | 'isVerified' | 'isFeatured'>) => {
@@ -174,9 +206,13 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isVerified: false,
       isFeatured: false,
     };
-    await dbService.saveReview(newReview);
-    const updated = await dbService.getReviews();
-    setReviews(updated);
+    // Update local state immediately for instant success transition
+    setReviews((prev) => [newReview, ...prev]);
+    
+    // Save to database & firestore in background
+    dbService.saveReview(newReview).catch((e) => {
+      console.warn('Background save review warning:', e);
+    });
   };
 
   return (
@@ -190,6 +226,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         media,
         appointments,
         reviews,
+        gallery,
         loading,
         refreshData: loadAllData,
         updateSettings: handleUpdateSettings,
@@ -201,6 +238,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteResource: handleDeleteResource,
         saveMedia: handleSaveMedia,
         deleteMedia: handleDeleteMedia,
+        saveGalleryItem: handleSaveGalleryItem,
+        deleteGalleryItem: handleDeleteGalleryItem,
         bookAppointment: handleBookAppointment,
         updateAppointmentStatus: handleUpdateAppointmentStatus,
         saveReview: handleSaveReview,

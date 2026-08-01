@@ -78,7 +78,7 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
             {/* Progress % and Status */}
             <div className="w-full flex items-center justify-between text-xs text-slate-400 font-mono">
               <span className="flex items-center gap-1.5 text-cyan-400">
-                <Activity size={12} className="animate-spin" /> Initializing 3D Canvas...
+                <Activity size={12} className="animate-spin" /> Loading...
               </span>
               <span className="font-bold text-white">{progress}%</span>
             </div>

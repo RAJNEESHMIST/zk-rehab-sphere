@@ -2,12 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CalendarCheck, Car, Stethoscope, Search, Activity, FileSpreadsheet, HeartPulse, CheckCircle2 } from 'lucide-react';
 import physioTreatment from '../../assets/physio-treatment.png';
-import receptionModern from '../../assets/reception-modern.png';
-import zkReception from '../../assets/zk-reception.png';
-import physioGym from '../../assets/physio-gym.png';
-import heroImg from '../../assets/hero.png';
+import postureCorrection from '../../assets/treatments/posture_correction.png';
 import aboutImg from '../../assets/about.png';
 import service1 from '../../assets/service-1.png';
+
+const fallbackImg = physioTreatment;
 
 export const RehabJourney: React.FC = () => {
   const steps = [
@@ -15,28 +14,28 @@ export const RehabJourney: React.FC = () => {
       step: '01',
       title: 'Appointment Scheduling',
       desc: 'Seamless booking via phone or WhatsApp. Your preferred home visit timing is confirmed across Chandigarh, Mohali, or Kharar.',
-      image: service1,
+      image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80',
       icon: <CalendarCheck size={22} className="text-cyan-400" />
     },
     {
       step: '02',
       title: 'Home Arrival & Hygiene Setup',
       desc: 'Our physiotherapist arrives punctually with sanitized equipment, protective wear, and portable clinical therapy modalities.',
-      image: zkReception,
+      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80',
       icon: <Car size={22} className="text-teal-400" />
     },
     {
       step: '03',
       title: 'Clinical Assessment',
       desc: 'Thorough evaluation of joint range of motion, muscle strength, nerve reflexes, gait pattern, and pain trigger points.',
-      image: aboutImg,
+      image: service1,
       icon: <Stethoscope size={22} className="text-sky-400" />
     },
     {
       step: '04',
       title: 'Evidence Diagnosis',
       desc: 'Formulating a clinical diagnostic report pinpointing root cause biomechanical dysfunctions or neurological deficits.',
-      image: physioGym,
+      image: postureCorrection,
       icon: <Search size={22} className="text-cyan-400" />
     },
     {
@@ -50,14 +49,14 @@ export const RehabJourney: React.FC = () => {
       step: '06',
       title: 'Personalized Recovery Plan',
       desc: 'Structured home exercise handbook and daily goal milestones established for patient and family caregivers.',
-      image: receptionModern,
+      image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=1200&q=80',
       icon: <FileSpreadsheet size={22} className="text-sky-400" />
     },
     {
       step: '07',
       title: 'Continuous Follow-Up',
       desc: 'Regular re-evaluations, video guidance, and long-term joint care maintenance for sustained independence.',
-      image: heroImg,
+      image: aboutImg,
       icon: <HeartPulse size={22} className="text-emerald-400" />
     }
   ];
@@ -129,6 +128,9 @@ export const RehabJourney: React.FC = () => {
                       <img
                         src={item.image}
                         alt={item.title}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = fallbackImg;
+                        }}
                         className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />

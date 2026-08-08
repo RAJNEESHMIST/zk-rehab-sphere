@@ -5,6 +5,19 @@ import { useCursor } from '../../context/CursorContext';
 import { useSiteData } from '../../context/SiteDataContext';
 import { GalleryItem } from '../../types';
 
+// Import local gallery images
+import strokeRehabImg from '../../assets/treatments/stroke_rehab.png';
+import parkinsonsTherapyImg from '../../assets/treatments/parkinsons_therapy.png';
+import balanceGaitImg from '../../assets/treatments/balance_gait.png';
+import postSurgeryRehabImg from '../../assets/treatments/post_surgery_rehab.png';
+import sportsInjuryRehabImg from '../../assets/treatments/sports_injury_rehab.png';
+import jointPainManagementImg from '../../assets/treatments/joint_pain_management.png';
+import lowerBackPainImg from '../../assets/treatments/lower_back_pain.png';
+import bodyNeckImg from '../../assets/treatments/body_neck.png';
+import postureCorrectionImg from '../../assets/treatments/posture_correction.png';
+import electrotherapyImg from '../../assets/treatments/electrotherapy.png';
+import shockwaveTherapyImg from '../../assets/treatments/shockwave_therapy.png';
+
 // Fallback high-quality recovery cards if IndexedDB is still loading/empty
 const fallbackGallery: GalleryItem[] = [
   // Neurological Care
@@ -12,9 +25,9 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-1',
     title: 'Stroke Rehabilitation Home Session',
     category: 'Neurological Care',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
-    beforeImage: 'https://images.unsplash.com/photo-1581071805260-15cc9c47d272?auto=format&fit=crop&w=800&q=80',
-    afterImage: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
+    image: strokeRehabImg,
+    beforeImage: strokeRehabImg,
+    afterImage: strokeRehabImg,
     caption: 'Patient undergoing upper limb neuro-plasticity & functional movement retraining in Sector 34, Chandigarh.',
     location: 'Chandigarh'
   },
@@ -22,7 +35,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-2',
     title: "Parkinson's Tremor Management",
     category: 'Neurological Care',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80',
+    image: parkinsonsTherapyImg,
     caption: 'Coordination and progressive balance exercise session under therapist supervision.',
     location: 'Mohali'
   },
@@ -30,7 +43,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-3',
     title: 'Balance & Gait Mobility Training',
     category: 'Neurological Care',
-    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    image: balanceGaitImg,
     caption: 'Preventing fall risks and correcting biomechanical walking patterns for geriatric safety.',
     location: 'Kharar'
   },
@@ -40,9 +53,9 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-4',
     title: 'Post Knee Replacement flexion mobilization',
     category: 'Orthopedic Rehab',
-    image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
-    beforeImage: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
-    afterImage: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+    image: postSurgeryRehabImg,
+    beforeImage: postSurgeryRehabImg,
+    afterImage: postSurgeryRehabImg,
     caption: 'Progressive unassisted weight-bearing practice 3 weeks post knee replacement surgery.',
     location: 'Chandigarh'
   },
@@ -50,7 +63,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-5',
     title: 'ACL Ligament Tear Rehabilitation',
     category: 'Orthopedic Rehab',
-    image: 'https://images.unsplash.com/photo-1519826314078-191d81bf10b0?auto=format&fit=crop&w=800&q=80',
+    image: sportsInjuryRehabImg,
     caption: 'Targeted strengthening of the quadriceps and hamstring muscle group post injury.',
     location: 'Mohali'
   },
@@ -58,7 +71,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-6',
     title: 'Adhesive Capsulitis (Frozen Shoulder) Therapy',
     category: 'Orthopedic Rehab',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    image: jointPainManagementImg,
     caption: 'Joint mobilization maneuvers and passive stretching routines to restore functional arc.',
     location: 'Kharar'
   },
@@ -68,7 +81,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-7',
     title: 'Lumbar Disc Herniation Decompression',
     category: 'Spine Care',
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    image: lowerBackPainImg,
     caption: 'McKenzie mechanical diagnosis spinal retraction and lumbar posture corrections.',
     location: 'Chandigarh'
   },
@@ -76,7 +89,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-8',
     title: 'Cervical Spondylosis Manual Traction',
     category: 'Spine Care',
-    image: 'https://images.unsplash.com/photo-1620188467120-5042ed1eb5da?auto=format&fit=crop&w=800&q=80',
+    image: bodyNeckImg,
     caption: 'Bedside manual traction to relieve nerve pressure and reduce acute cervical radiation.',
     location: 'Mohali'
   },
@@ -84,7 +97,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-9',
     title: 'Spinal Alignment & Posture Scan',
     category: 'Spine Care',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+    image: postureCorrectionImg,
     caption: 'Assessing muscular balance and spinal curvatures to correct seated ergonomics.',
     location: 'Kharar'
   },
@@ -94,7 +107,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-10',
     title: 'Portable Ultrasound Therapy Session',
     category: 'Advanced Equipment',
-    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+    image: electrotherapyImg,
     caption: 'Hospital-grade portable electrotherapy & ultrasound modalities brought directly to the patient’s bedside for targeted pain alleviation.',
     location: 'Chandigarh'
   },
@@ -102,7 +115,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-11',
     title: 'Dual Channel TENS Muscle Stimulation',
     category: 'Advanced Equipment',
-    image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+    image: electrotherapyImg,
     caption: 'Targeted nerve stimulation and pain gating therapy for chronic joint arthrosis.',
     location: 'Mohali'
   },
@@ -110,7 +123,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-12',
     title: 'Bedside Mechanical Spine Decompression',
     category: 'Advanced Equipment',
-    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
+    image: shockwaveTherapyImg,
     caption: 'Deploying high-traction decompression belts to reduce sciatic radiation.',
     location: 'Kharar'
   }
@@ -158,7 +171,7 @@ export const HomeGallery: React.FC = () => {
             transition={{ delay: 0.1 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight"
           >
-            Real Patients, <span className="text-gradient">Real Recovery Sessions</span>
+            Professional Care, <span className="text-gradient">Real Recovery</span>
           </motion.h2>
 
           <motion.p
@@ -168,7 +181,7 @@ export const HomeGallery: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-slate-300 text-base sm:text-lg"
           >
-            Browse real photographs from our home visit physiotherapy sessions across Chandigarh, Mohali, and Kharar.
+            Browse photographs from our home visit physiotherapy sessions across Chandigarh, Mohali, and Kharar.
           </motion.p>
         </div>
 

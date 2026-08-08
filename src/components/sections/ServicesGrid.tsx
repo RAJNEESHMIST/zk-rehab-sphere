@@ -5,6 +5,21 @@ import {
   Sparkles, ShieldCheck, HeartPulse, Accessibility, Compass, Zap, Cpu
 } from 'lucide-react';
 
+// Import treatment images
+import strokeRehabImg from '../../assets/treatments/stroke_rehab.png';
+import parkinsonsTherapyImg from '../../assets/treatments/parkinsons_therapy.png';
+import balanceGaitImg from '../../assets/treatments/balance_gait.png';
+import postSurgeryRehabImg from '../../assets/treatments/post_surgery_rehab.png';
+import sportsInjuryRehabImg from '../../assets/treatments/sports_injury_rehab.png';
+import jointPainManagementImg from '../../assets/treatments/joint_pain_management.png';
+import cervicalPainTherapyImg from '../../assets/treatments/cervical_pain_therapy.png';
+import lowerBackPainImg from '../../assets/treatments/lower_back_pain.png';
+import postureCorrectionImg from '../../assets/treatments/posture_correction.png';
+import shockwaveTherapyImg from '../../assets/treatments/shockwave_therapy.png';
+import electrotherapyImg from '../../assets/treatments/electrotherapy.png';
+import roboticRehabImg from '../../assets/treatments/robotic_rehab.png';
+import fallbackImg from '../../assets/physio-treatment.png';
+
 interface TreatmentCard {
   id: string;
   title: string;
@@ -35,7 +50,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Personalized recovery programs to improve mobility, balance, strength, and independence after stroke.',
       duration: '8–12 Weeks',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1581071805260-15cc9c47d272?auto=format&fit=crop&w=800&q=80',
+      image: strokeRehabImg,
       icon: <Brain className="text-cyan-400" size={20} />
     },
     {
@@ -45,7 +60,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Improve gait, coordination, flexibility, and quality of life with evidence-based exercises.',
       duration: '6–10 Weeks',
       recoveryLevel: 4,
-      image: 'https://images.unsplash.com/photo-1579684389782-64d84b5e901d?auto=format&fit=crop&w=800&q=80',
+      image: parkinsonsTherapyImg,
       icon: <HeartPulse className="text-teal-400" size={20} />
     },
     {
@@ -55,7 +70,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Advanced therapy focused on improving walking patterns and preventing falls.',
       duration: '4–8 Weeks',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+      image: balanceGaitImg,
       icon: <Accessibility className="text-sky-400" size={20} />
     },
 
@@ -67,7 +82,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Accelerated recovery after knee replacement, ACL reconstruction, fractures, and orthopedic surgeries.',
       duration: '6–16 Weeks',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
+      image: postSurgeryRehabImg,
       icon: <Dumbbell className="text-cyan-400" size={20} />
     },
     {
@@ -77,7 +92,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Restore performance after ligament injuries, muscle tears, sprains, and overuse injuries.',
       duration: '4–12 Weeks',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+      image: sportsInjuryRehabImg,
       icon: <Activity className="text-teal-400" size={20} />
     },
     {
@@ -87,7 +102,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Reduce pain and restore movement for shoulder, hip, elbow, and knee disorders.',
       duration: '4–8 Weeks',
       recoveryLevel: 4,
-      image: 'https://images.unsplash.com/photo-1582719471384-894fca16e374?auto=format&fit=crop&w=800&q=80',
+      image: jointPainManagementImg,
       icon: <Compass className="text-sky-400" size={20} />
     },
 
@@ -99,7 +114,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Effective treatment for neck stiffness, cervical spondylosis, and posture correction.',
       duration: '4–8 Weeks',
       recoveryLevel: 4,
-      image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+      image: cervicalPainTherapyImg,
       icon: <Award className="text-cyan-400" size={20} />
     },
     {
@@ -109,7 +124,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Evidence-based rehabilitation for chronic and acute lower back pain.',
       duration: '6 Weeks',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+      image: lowerBackPainImg,
       icon: <ShieldCheck className="text-teal-400" size={20} />
     },
     {
@@ -119,7 +134,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Improve spinal alignment, ergonomics, and muscular balance for long-term health.',
       duration: '4 Weeks',
       recoveryLevel: 4,
-      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+      image: postureCorrectionImg,
       icon: <Sparkles className="text-sky-400" size={20} />
     },
 
@@ -131,7 +146,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Non-invasive treatment for chronic tendon pain and musculoskeletal disorders.',
       duration: '6 Sessions',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80',
+      image: shockwaveTherapyImg,
       icon: <Zap className="text-cyan-400" size={20} />
     },
     {
@@ -141,7 +156,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Pain management and muscle stimulation using advanced electrotherapy devices.',
       duration: '10 Sessions',
       recoveryLevel: 4,
-      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+      image: electrotherapyImg,
       icon: <Cpu className="text-teal-400" size={20} />
     },
     {
@@ -151,7 +166,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
       description: 'Technology-assisted rehabilitation for neurological and orthopedic patients.',
       duration: 'Custom Plan',
       recoveryLevel: 5,
-      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+      image: roboticRehabImg,
       icon: <Accessibility className="text-sky-400" size={20} />
     }
   ];
@@ -226,6 +241,9 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
                     src={t.image}
                     alt={t.title}
                     loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = fallbackImg;
+                    }}
                     className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   {/* Neon Soft Gradient bottom overlay */}

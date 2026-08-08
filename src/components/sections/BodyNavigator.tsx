@@ -9,6 +9,15 @@ import { BodyPartCondition } from '../../types';
 import { useSiteData } from '../../context/SiteDataContext';
 import { useCursor } from '../../context/CursorContext';
 
+// Import high-resolution condition images
+import bodyNeckImg from '../../assets/treatments/body_neck.png';
+import bodyShoulderImg from '../../assets/treatments/joint_pain_management.png';
+import bodyBackImg from '../../assets/treatments/lower_back_pain.png';
+import bodyHipImg from '../../assets/treatments/posture_correction.png';
+import bodyKneeImg from '../../assets/treatments/post_surgery_rehab.png';
+import bodyAnkleImg from '../../assets/treatments/balance_gait.png';
+import fallbackImg from '../../assets/physio-treatment.png';
+
 interface BodyNavigatorProps {
   onOpenBooking: (serviceName?: string) => void;
 }
@@ -20,7 +29,7 @@ const regionVisuals: Record<string, {
   milestones: { week: string; goal: string }[];
 }> = {
   neck: {
-    image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
+    image: bodyNeckImg,
     timeline: '2–4 Weeks (8–10 Sessions)',
     explanation: 'Cervical spondylosis and neck stiffness are treated using gentle joint decompression, myofascial release, and upper trapezius posture realignment.',
     milestones: [
@@ -30,7 +39,7 @@ const regionVisuals: Record<string, {
     ]
   },
   shoulder: {
-    image: 'https://images.unsplash.com/photo-1582719471384-894fca16e374?auto=format&fit=crop&w=800&q=80',
+    image: bodyShoulderImg,
     timeline: '4–8 Weeks (12–16 Sessions)',
     explanation: 'Adhesive capsulitis (Frozen Shoulder) and rotator cuff tendinitis require progressive joint capsular stretching, passive elevation, and active resistance training.',
     milestones: [
@@ -40,7 +49,7 @@ const regionVisuals: Record<string, {
     ]
   },
   back: {
-    image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    image: bodyBackImg,
     timeline: '3–6 Weeks (10–14 Sessions)',
     explanation: 'Sciatica and disc herniation (L4-L5) respond rapidly to McKenzie disc extension centralization, core stabilization, and sciatic nerve flossing.',
     milestones: [
@@ -50,7 +59,7 @@ const regionVisuals: Record<string, {
     ]
   },
   hip: {
-    image: 'https://images.unsplash.com/photo-1519826314078-191d81bf10b0?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1582719471384-894fca16e374?auto=format&fit=crop&w=1200&q=80',
     timeline: '4–8 Weeks Post-Op',
     explanation: 'Total Hip Replacement (THR) and hip osteoarthritis home rehab focuses on progressive weight-bearing, gait correction, and gluteus medius strengthening.',
     milestones: [
@@ -60,7 +69,7 @@ const regionVisuals: Record<string, {
     ]
   },
   knee: {
-    image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
+    image: bodyKneeImg,
     timeline: '3–6 Weeks Post-Op',
     explanation: 'Total Knee Replacement (TKR) and ACL ligament tears require early terminal knee extension, quad activation, swelling reduction, and stairs training.',
     milestones: [
@@ -70,7 +79,7 @@ const regionVisuals: Record<string, {
     ]
   },
   ankle: {
-    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1597764690523-15bea4c581c9?auto=format&fit=crop&w=1200&q=80',
     timeline: '2–4 Weeks (6–8 Sessions)',
     explanation: 'Plantar fasciitis and chronic ankle sprains are managed with proprioception balance training, calf stretching, and arch support guidance.',
     milestones: [
@@ -280,6 +289,9 @@ export const BodyNavigator: React.FC<BodyNavigatorProps> = ({ onOpenBooking }) =
                     <img
                       src={activeVisual.image}
                       alt={selectedCondition.partName}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = fallbackImg;
+                      }}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />

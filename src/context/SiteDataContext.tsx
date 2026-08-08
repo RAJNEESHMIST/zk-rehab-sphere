@@ -17,6 +17,8 @@ interface SiteDataContextType {
   updateSettings: (newSettings: SiteSettings) => Promise<void>;
   saveExpert: (expert: Expert) => Promise<void>;
   deleteExpert: (id: string) => Promise<void>;
+  saveService: (service: Service) => Promise<void>;
+  deleteService: (id: string) => Promise<void>;
   saveBlog: (blog: BlogPost) => Promise<void>;
   deleteBlog: (id: string) => Promise<void>;
   saveResource: (resource: ResourceItem) => Promise<void>;
@@ -100,7 +102,17 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const updated = await dbService.getExperts();
     setExperts(updated);
   };
+  const handleSaveService = async (service: Service) => {
+    await dbService.saveService(service);
+    const updated = await dbService.getServices();
+    setServices(updated);
+  };
 
+  const handleDeleteService = async (id: string) => {
+    await dbService.deleteService(id);
+    const updated = await dbService.getServices();
+    setServices(updated);
+  };
   const handleSaveBlog = async (blog: BlogPost) => {
     await dbService.saveBlog(blog);
     const updated = await dbService.getBlogs();
@@ -247,6 +259,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateSettings: handleUpdateSettings,
         saveExpert: handleSaveExpert,
         deleteExpert: handleDeleteExpert,
+        saveService: handleSaveService,
+        deleteService: handleDeleteService,
         saveBlog: handleSaveBlog,
         deleteBlog: handleDeleteBlog,
         saveResource: handleSaveResource,

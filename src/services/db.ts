@@ -321,6 +321,28 @@ export const dbService = {
     const services = await db.getAll('services');
     return services.length ? services : initialServices;
   },
+  async saveService(service: Service): Promise<void> {
+    const db = await getDB();
+    await db.put('services', service);
+    try {
+      if (firestoreDb) {
+        await setDoc(doc(firestoreDb, 'services', service.id), service);
+      }
+    } catch (e) {
+      console.warn('Firestore save service error:', e);
+    }
+  },
+  async deleteService(id: string): Promise<void> {
+    const db = await getDB();
+    await db.delete('services', id);
+    try {
+      if (firestoreDb) {
+        await deleteDoc(doc(firestoreDb, 'services', id));
+      }
+    } catch (e) {
+      console.warn('Firestore delete service error:', e);
+    }
+  },
 
   // Blogs (Synced to Firestore Collection 'blogs')
   async getBlogs(): Promise<BlogPost[]> {

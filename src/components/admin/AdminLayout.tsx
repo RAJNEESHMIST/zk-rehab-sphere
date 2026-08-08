@@ -10,6 +10,7 @@ import { SiteSettingsEditor } from './SiteSettings';
 import { ReviewManager } from './ReviewManager';
 
 import { GalleryManager } from './GalleryManager';
+import { ServiceManager } from './ServiceManager';
 
 export const AdminLayout: React.FC = () => {
   const { isAdmin, login, logout } = useAuth();
@@ -17,7 +18,7 @@ export const AdminLayout: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services'>('dashboard');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +140,7 @@ export const AdminLayout: React.FC = () => {
               {[
                 { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
                 { id: 'experts', label: 'Doctors / Experts', icon: <UserCheck size={18} /> },
+                { id: 'services', label: 'Services & Cards', icon: <SettingsIcon size={18} /> },
                 { id: 'blogs', label: 'Articles & Blogs', icon: <FileText size={18} /> },
                 { id: 'reviews', label: 'Review Moderation', icon: <Star size={18} /> },
                 { id: 'gallery', label: 'Patient Gallery', icon: <ImageIcon size={18} /> },
@@ -179,6 +181,7 @@ export const AdminLayout: React.FC = () => {
           <div className="flex-1">
             {activeTab === 'dashboard' && <DashboardHome />}
             {activeTab === 'experts' && <ExpertManager />}
+            {activeTab === 'services' && <ServiceManager />}
             {activeTab === 'blogs' && <BlogManager />}
             {activeTab === 'reviews' && <ReviewManager />}
             {activeTab === 'gallery' && <GalleryManager />}

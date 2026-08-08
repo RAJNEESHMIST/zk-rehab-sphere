@@ -5,6 +5,7 @@ import physioTreatment from '../../assets/physio-treatment.png';
 import postureCorrection from '../../assets/treatments/posture_correction.png';
 import aboutImg from '../../assets/about.png';
 import service1 from '../../assets/service-1.png';
+import zkReception from '../../assets/zk-reception.png';
 
 const fallbackImg = physioTreatment;
 
@@ -21,7 +22,7 @@ export const RehabJourney: React.FC = () => {
       step: '02',
       title: 'Home Arrival & Hygiene Setup',
       desc: 'Our physiotherapist arrives punctually with sanitized equipment, protective wear, and portable clinical therapy modalities.',
-      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80',
+      image: zkReception,
       icon: <Car size={22} className="text-teal-400" />
     },
     {

@@ -47,7 +47,7 @@ export const StatsSection: React.FC = () => {
     { value: 500, suffix: '+', label: 'Patients Treated', sub: 'Successful Recoveries', icon: <Users className="text-cyan-400" /> },
     { value: 1000, suffix: '+', label: 'Sessions Completed', sub: 'Home visits completed', icon: <HeartHandshake className="text-teal-400" /> },
     { value: 4.9, suffix: '★', label: 'Google Rating', sub: 'Verified Patient Feedback', icon: <Star className="text-amber-400 fill-amber-400" /> },
-    { value: 5, suffix: '+', label: 'Years Experience', sub: 'Clinical Excellence', icon: <Award className="text-sky-400" /> },
+    { value: 2, suffix: '+', label: 'Years Experience', sub: 'Clinical Excellence', icon: <Award className="text-sky-400" /> },
   ];
 
   return (

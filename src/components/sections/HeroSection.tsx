@@ -20,6 +20,44 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenBooking }) => {
     "Expert Spine & Sciatica Decompression"
   ];
   const [titleIndex, setTitleIndex] = useState(0);
+  const [nextSlot, setNextSlot] = useState<string>('9:00 AM');
+  const [availabilityLabel, setAvailabilityLabel] = useState<string>("Today's Availability");
+  const [sameDayLabel, setSameDayLabel] = useState<string>("Same Day Visit Available");
+
+  useEffect(() => {
+    const calculateSlot = () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinutes = now.getMinutes();
+
+      // Predefined clinic slot hours (in 24h format)
+      // e.g., 9:00 AM, 11:30 AM, 2:00 PM, 4:30 PM, 7:00 PM
+      const slots = [
+        { hour: 9, min: 0, label: '9:00 AM' },
+        { hour: 11, min: 30, label: '11:30 AM' },
+        { hour: 14, min: 0, label: '2:00 PM' },
+        { hour: 16, min: 30, label: '4:30 PM' },
+        { hour: 19, min: 0, label: '7:00 PM' }
+      ];
+
+      const nowTotalMins = currentHour * 60 + currentMinutes;
+      const foundSlot = slots.find(s => (s.hour * 60 + s.min) > (nowTotalMins + 30));
+
+      if (foundSlot) {
+        setNextSlot(foundSlot.label);
+        setAvailabilityLabel("Today's Availability");
+        setSameDayLabel("Same Day Visit Available");
+      } else {
+        setNextSlot('Tomorrow: 9:00 AM');
+        setAvailabilityLabel("Tomorrow's Slots");
+        setSameDayLabel("Next Day Visit Available");
+      }
+    };
+
+    calculateSlot();
+    const timer = setInterval(calculateSlot, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -67,15 +105,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenBooking }) => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            Today's Availability
+            {availabilityLabel}
           </span>
           <span className="h-3 w-px bg-white/20" />
           <span className="text-xs font-extrabold text-white">
-            Next Slot: <span className="text-cyan-400">11:30 AM</span>
+            Next Slot: <span className="text-cyan-400">{nextSlot}</span>
           </span>
           <span className="h-3 w-px bg-white/20" />
           <span className="text-xs font-medium text-slate-300">
-            Same Day Visit Available
+            {sameDayLabel}
           </span>
         </motion.div>
 

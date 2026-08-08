@@ -116,3 +116,52 @@
 .transform-style-3d {
   transform-style: preserve-3d;
 }
+
+/* Pulsing ripple wave effects for floating contact buttons */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ripple-wave-cyan, .ripple-wave-emerald {
+  position: relative;
+}
+
+.ripple-wave-cyan::before,
+.ripple-wave-cyan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22d3ee, #38bdf8);
+  z-index: -1;
+  animation: ripple 2.5s infinite cubic-bezier(0.25, 0, 0, 1);
+  pointer-events: none;
+}
+
+.ripple-wave-cyan::after {
+  animation-delay: 1.25s;
+}
+
+.ripple-wave-emerald::before,
+.ripple-wave-emerald::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #25D366;
+  z-index: -1;
+  animation: ripple 2.5s infinite cubic-bezier(0.25, 0, 0, 1);
+  pointer-events: none;
+}
+
+.ripple-wave-emerald::after {
+  animation-delay: 1.25s;
+}
+

@@ -136,6 +136,7 @@ export const HomeGallery: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [activeLightboxItem, setActiveLightboxItem] = useState<any | null>(null);
   const [sliderPosition, setSliderPosition] = useState<number>(50);
+  const [showAll, setShowAll] = useState(false);
 
   const categories = ['All', 'Neurological Care', 'Orthopedic Rehab', 'Spine Care', 'Advanced Equipment'];
 
@@ -196,16 +197,19 @@ export const HomeGallery: React.FC = () => {
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-300 text-base sm:text-lg"
-          >
-            Browse photographs from our home visit physiotherapy sessions across Chandigarh, Mohali, and Kharar.
-          </motion.p>
+        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30">
+            Professional Care, Real Recovery
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Our Recovery <span className="text-gradient">Gallery</span>
+          </h2>
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Illustrative photo gallery showing manual mobilization, rehabilitation equipment setups, and clinical progression exercises.
+          </p>
         </div>
 
-        {/* Filter Badges */}
+        {/* Category Filters */}
         <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
           {categories.map((cat) => (
             <button
@@ -225,7 +229,7 @@ export const HomeGallery: React.FC = () => {
         {/* Masonry Image Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
-            {filteredItems.map((item) => (
+            {displayedItems.map((item) => (
               <motion.div
                 key={item.id}
                 layout
@@ -294,6 +298,17 @@ export const HomeGallery: React.FC = () => {
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {filteredItems.length > 6 && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-400/40 text-xs font-black uppercase tracking-wider text-slate-200 hover:text-white transition-all cursor-pointer shadow-lg hover:shadow-cyan-500/10 hover:scale-105 active:scale-95"
+            >
+              {showAll ? 'Show Less Gallery Cards' : 'Show All Gallery Cards'}
+            </button>
+          </div>
+        )}
 
         {/* Lightbox / Before-After Comparison Modal */}
         <AnimatePresence>

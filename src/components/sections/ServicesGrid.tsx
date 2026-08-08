@@ -40,6 +40,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
   const { getManagedImage, getAltText } = useSiteData();
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const serviceKeyMap: Record<string, string> = {
     'neuro-1': 'service.strokeRehab',
@@ -192,6 +193,8 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
     ? treatments
     : treatments.filter((t) => t.category === selectedFilter);
 
+  const displayedTreatments = showAll ? filteredTreatments : filteredTreatments.slice(0, 6);
+
   return (
     <section id="services" className="py-24 relative z-10 overflow-hidden bg-slate-950">
       
@@ -236,7 +239,7 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
         >
           <AnimatePresence mode="popLayout">
-            {filteredTreatments.map((t) => (
+            {displayedTreatments.map((t) => (
               <motion.div
                 key={t.id}
                 layout
@@ -335,6 +338,17 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {filteredTreatments.length > 6 && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-400/40 text-xs font-black uppercase tracking-wider text-slate-200 hover:text-white transition-all cursor-pointer shadow-lg hover:shadow-cyan-500/10 hover:scale-105 active:scale-95"
+            >
+              {showAll ? 'Show Less Treatments' : 'Show All Treatments'}
+            </button>
+          </div>
+        )}
 
       </div>
     </section>

@@ -117,6 +117,12 @@ export interface SiteSettings {
   };
   metaTitle: string;
   metaDescription: string;
+  imageOverrides?: Record<string, {
+    url: string;
+    altText?: string;
+    updatedAt: string;
+    updatedBy: string;
+  }>;
 }
 
 export interface MediaItem {

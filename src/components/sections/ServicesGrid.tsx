@@ -4,6 +4,7 @@ import {
   Activity, Calendar, Star, Clock, Brain, Dumbbell, ShieldAlert, Award, 
   Sparkles, ShieldCheck, HeartPulse, Accessibility, Compass, Zap, Cpu
 } from 'lucide-react';
+import { useSiteData } from '../../context/SiteDataContext';
 
 // Import treatment images
 import strokeRehabImg from '../../assets/treatments/stroke_rehab.png';
@@ -36,8 +37,24 @@ interface ServicesGridProps {
 }
 
 export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => {
+  const { getManagedImage, getAltText } = useSiteData();
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+
+  const serviceKeyMap: Record<string, string> = {
+    'neuro-1': 'service.strokeRehab',
+    'neuro-2': 'service.parkinsons',
+    'neuro-3': 'service.balanceGait',
+    'ortho-1': 'service.postSurgery',
+    'ortho-2': 'service.sportsInjury',
+    'ortho-3': 'service.jointPain',
+    'spine-1': 'service.cervicalPain',
+    'spine-2': 'service.lowerBackPain',
+    'spine-3': 'service.postureCorrection',
+    'equip-1': 'service.shockwave',
+    'equip-2': 'service.electrotherapy',
+    'equip-3': 'service.robotic'
+  };
 
   const categories = ['All', 'Neurological Care', 'Orthopedic Rehab', 'Spine Care', 'Advanced Equipment'];
 

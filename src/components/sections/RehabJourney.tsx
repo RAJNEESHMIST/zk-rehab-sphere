@@ -50,7 +50,7 @@ export const RehabJourney: React.FC = () => {
       step: '06',
       title: 'Personalized Recovery Plan',
       desc: 'Structured home exercise handbook and daily goal milestones established for patient and family caregivers.',
-      image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80',
       icon: <FileSpreadsheet size={22} className="text-sky-400" />
     },
     {

@@ -31,6 +31,8 @@ interface SiteDataContextType {
   deleteReview: (id: string) => Promise<void>;
   updateReviewStatus: (id: string, status: ReviewItem['status']) => Promise<void>;
   submitPublicReview: (reviewData: Omit<ReviewItem, 'id' | 'createdAt' | 'status' | 'isVerified' | 'isFeatured'>) => Promise<void>;
+  getManagedImage: (key: string, defaultUrl: string) => string;
+  getAltText: (key: string, defaultAlt: string) => string;
 }
 
 const SiteDataContext = createContext<SiteDataContextType | undefined>(undefined);
@@ -215,6 +217,19 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
+  const getManagedImage = (key: string, defaultUrl: string): string => {
+    const override = settings?.imageOverrides?.[key];
+    if (override?.url) {
+      return `${override.url}?v=${new Date(override.updatedAt).getTime()}`;
+    }
+    return defaultUrl;
+  };
+
+  const getAltText = (key: string, defaultAlt: string): string => {
+    const override = settings?.imageOverrides?.[key];
+    return override?.altText || defaultAlt;
+  };
+
   return (
     <SiteDataContext.Provider
       value={{
@@ -246,6 +261,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteReview: handleDeleteReview,
         updateReviewStatus: handleUpdateReviewStatus,
         submitPublicReview: handleSubmitPublicReview,
+        getManagedImage,
+        getAltText,
       }}
     >
       {children}

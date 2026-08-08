@@ -295,6 +295,10 @@ export const BodyNavigator: React.FC<BodyNavigatorProps> = ({ onOpenBooking }) =
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                    {/* Branding Board Overlay */}
+                    <div className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded bg-slate-950/80 border-l border-cyan-400 text-[8px] font-black uppercase text-white shadow-md tracking-widest backdrop-blur-md">
+                      ZK REHAB SPHERE
+                    </div>
                     <span className="absolute bottom-3 left-3 text-[9px] font-black uppercase tracking-widest text-cyan-300 bg-slate-950/90 px-2.5 py-1 rounded-md border border-cyan-400/30 backdrop-blur-md">
                       Verified Session
                     </span>

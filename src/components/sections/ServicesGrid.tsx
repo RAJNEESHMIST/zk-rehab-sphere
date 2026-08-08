@@ -249,6 +249,11 @@ export const ServicesGrid: React.FC<ServicesGridProps> = ({ onOpenBooking }) => 
                   {/* Neon Soft Gradient bottom overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                   
+                  {/* Branding Board Overlay */}
+                  <div className="absolute bottom-4 right-4 z-10 px-2 py-0.5 rounded bg-slate-950/80 border-l border-cyan-400 text-[8px] font-black uppercase text-white shadow-md tracking-widest backdrop-blur-md">
+                    ZK REHAB SPHERE
+                  </div>
+
                   {/* Floating category badge & medical icon */}
                   <div className="absolute top-4 left-4 flex items-center gap-2">
                     <span className="px-3 py-1 rounded-full bg-slate-950/80 border border-cyan-400/30 text-[9px] font-black uppercase text-cyan-300 backdrop-blur-md">

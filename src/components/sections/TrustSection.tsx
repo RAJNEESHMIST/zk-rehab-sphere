@@ -96,7 +96,11 @@ export const TrustSection: React.FC = () => {
                   }}
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                 {/* Branding Board Overlay */}
+                 <div className="absolute bottom-4 right-4 z-10 px-2 py-0.5 rounded bg-slate-950/80 border-l border-cyan-400 text-[8px] font-black uppercase text-white shadow-md tracking-widest backdrop-blur-md">
+                   ZK REHAB SPHERE
+                 </div>
                 
                 {/* Floating Badge & Icon */}
                 <div className="absolute top-4 left-4 flex items-center gap-2">

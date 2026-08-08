@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CursorProvider } from './context/CursorContext';
-import { SiteDataProvider } from './context/SiteDataContext';
+import { SiteDataProvider, useSiteData } from './context/SiteDataContext';
 import { AuthProvider } from './context/AuthContext';
 import { CustomCursor } from './components/ui/CustomCursor';
 import { AnimatedBG } from './components/ui/AnimatedBG';
@@ -32,8 +32,10 @@ import { BlogListPage } from './components/blog/BlogListPage';
 import { BlogDetailPage } from './components/blog/BlogDetailPage';
 import { ReviewsPage } from './components/reviews/ReviewsPage';
 import { AdminLayout } from './components/admin/AdminLayout';
+import { OfferBanner } from './components/ui/OfferBanner';
 
 export function MainContent() {
+  const { offers } = useSiteData();
   const [isLoading, setIsLoading] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isSubmitReviewOpen, setIsSubmitReviewOpen] = useState(false);
@@ -66,6 +68,7 @@ export function MainContent() {
   const isBlogList = currentHash === '#blog';
   const isReviewsPage = currentHash === '#reviews';
   const isAdminPage = currentHash === '#admin';
+  const hasActiveOffer = offers && offers.some(o => o.isActive);
 
   return (
     <>
@@ -80,9 +83,10 @@ export function MainContent() {
             <AdminLayout />
           ) : (
             <>
+              <OfferBanner />
               <FloatingNav onOpenBooking={() => handleOpenBooking()} />
               
-              <main>
+              <main className={hasActiveOffer ? 'pt-8 sm:pt-10' : ''}>
                 {isBlogDetail ? (
                   <BlogDetailPage
                     slug={currentHash.replace('#blog/', '')}

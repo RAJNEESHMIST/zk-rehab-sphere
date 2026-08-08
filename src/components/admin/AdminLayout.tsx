@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, LayoutDashboard, UserCheck, FileText, Image as ImageIcon, Settings as SettingsIcon, LogOut, ArrowLeft, Lock, Star, Eye, EyeOff } from 'lucide-react';
+import { Shield, LayoutDashboard, UserCheck, FileText, Image as ImageIcon, Settings as SettingsIcon, LogOut, ArrowLeft, Lock, Star, Eye, EyeOff, Gift } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { DashboardHome } from './DashboardHome';
 import { ExpertManager } from './ExpertManager';
@@ -11,6 +11,7 @@ import { ReviewManager } from './ReviewManager';
 
 import { GalleryManager } from './GalleryManager';
 import { ServiceManager } from './ServiceManager';
+import { OfferManager } from './OfferManager';
 
 export const AdminLayout: React.FC = () => {
   const { isAdmin, login, logout } = useAuth();
@@ -18,7 +19,7 @@ export const AdminLayout: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services' | 'offers'>('dashboard');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,6 +146,7 @@ export const AdminLayout: React.FC = () => {
                 { id: 'reviews', label: 'Review Moderation', icon: <Star size={18} /> },
                 { id: 'gallery', label: 'Patient Gallery', icon: <ImageIcon size={18} /> },
                 { id: 'media', label: 'Media Library', icon: <ImageIcon size={18} /> },
+                { id: 'offers', label: 'Website Offers', icon: <Gift size={18} /> },
                 { id: 'settings', label: 'Site Settings', icon: <SettingsIcon size={18} /> },
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -186,6 +188,7 @@ export const AdminLayout: React.FC = () => {
             {activeTab === 'reviews' && <ReviewManager />}
             {activeTab === 'gallery' && <GalleryManager />}
             {activeTab === 'media' && <MediaLibrary />}
+            {activeTab === 'offers' && <OfferManager />}
             {activeTab === 'settings' && <SiteSettingsEditor />}
           </div>
 

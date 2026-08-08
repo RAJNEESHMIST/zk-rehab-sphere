@@ -10,7 +10,7 @@ interface FloatingNavProps {
 }
 
 export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
-  const { settings } = useSiteData();
+  const { settings, offers } = useSiteData();
   const { isAdmin } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -52,8 +52,12 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
     }
   };
 
+  const hasActiveOffer = offers && offers.some(o => o.isActive);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-[1000] px-3 sm:px-6 pt-3 sm:pt-4 transition-all duration-300 pointer-events-none">
+    <header className={`fixed left-0 right-0 z-[1000] px-3 sm:px-6 transition-all duration-300 pointer-events-none ${
+      hasActiveOffer ? 'top-8 sm:top-10' : 'top-0 pt-3 sm:pt-4'
+    }`}>
       <motion.nav
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

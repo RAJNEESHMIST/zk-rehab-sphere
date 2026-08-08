@@ -1,5 +1,5 @@
 import { openDB, IDBPDatabase } from 'idb';
-import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem } from '../types';
+import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem, Offer } from '../types';
 import { initialExperts, initialServices, initialBlogPosts, initialResources, initialSiteSettings, initialReviews } from './seedData';
 import { db as firestoreDb } from './firebase';
 import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
@@ -19,7 +19,7 @@ import shockwaveTherapyImg from '../assets/treatments/shockwave_therapy.png';
 import roboticRehabImg from '../assets/treatments/robotic_rehab.png';
 
 const DB_NAME = 'ZK_Rehab_Sphere_DB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 export interface ZKDatabase {
   settings: SiteSettings;
@@ -31,6 +31,7 @@ export interface ZKDatabase {
   appointments: AppointmentBooking[];
   reviews: ReviewItem[];
   gallery: GalleryItem[];
+  offers: Offer[];
 }
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
@@ -65,6 +66,9 @@ export const getDB = () => {
         }
         if (!db.objectStoreNames.contains('gallery')) {
           db.createObjectStore('gallery', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('offers')) {
+          db.createObjectStore('offers', { keyPath: 'id' });
         }
       },
     });
@@ -249,6 +253,18 @@ export const initDBSeedData = async (): Promise<void> => {
       await tx.store.put(item);
     }
     await tx.done;
+
+    // Seed Offers if empty
+    const offersCount = await db.count('offers');
+    if (offersCount === 0) {
+      await db.put('offers', {
+        id: 'offer-1',
+        title: 'Special Offer: Get 15 Min Free On-Call Consultation',
+        description: 'Speak with our senior physiotherapy specialist today for a free diagnostic assessment.',
+        isActive: true,
+        createdAt: new Date().toISOString()
+      });
+    }
   } catch (error) {
     console.error('Failed to initialize IndexedDB seed data:', error);
   }
@@ -541,6 +557,47 @@ export const dbService = {
       }
     } catch (e) {
       console.warn('Firestore delete gallery item warning:', e);
+    }
+  },
+
+  // Offers
+  async getOffers(): Promise<Offer[]> {
+    try {
+      if (firestoreDb) {
+        const querySnapshot = await getDocs(collection(firestoreDb, 'offers'));
+        if (!querySnapshot.empty) {
+          const list: Offer[] = [];
+          querySnapshot.forEach((docSnap) => list.push(docSnap.data() as Offer));
+          return list;
+        }
+      }
+    } catch (e) {
+      console.warn('Firestore fetch offers warning:', e);
+    }
+    const db = await getDB();
+    const offers = await db.getAll('offers');
+    return offers;
+  },
+  async saveOffer(offer: Offer): Promise<void> {
+    const db = await getDB();
+    await db.put('offers', offer);
+    try {
+      if (firestoreDb) {
+        await setDoc(doc(firestoreDb, 'offers', offer.id), offer);
+      }
+    } catch (e) {
+      console.warn('Firestore save offer warning:', e);
+    }
+  },
+  async deleteOffer(id: string): Promise<void> {
+    const db = await getDB();
+    await db.delete('offers', id);
+    try {
+      if (firestoreDb) {
+        await deleteDoc(doc(firestoreDb, 'offers', id));
+      }
+    } catch (e) {
+      console.warn('Firestore delete offer warning:', e);
     }
   }
 };

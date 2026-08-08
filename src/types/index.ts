@@ -199,3 +199,12 @@ export interface TestimonialItem {
 }
 
 export type CursorMode = 'default' | 'explore' | 'book' | 'read' | 'view' | 'play';
+
+export interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+}
+

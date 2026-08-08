@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem } from '../types';
+import { Expert, Service, BlogPost, ResourceItem, SiteSettings, MediaItem, AppointmentBooking, ReviewItem, GalleryItem, Offer } from '../types';
 import { dbService, initDBSeedData } from '../services/db';
 
 interface SiteDataContextType {
@@ -29,6 +29,9 @@ interface SiteDataContextType {
   deleteGalleryItem: (id: string) => Promise<void>;
   bookAppointment: (appointment: Omit<AppointmentBooking, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   updateAppointmentStatus: (id: string, status: AppointmentBooking['status']) => Promise<void>;
+  offers: Offer[];
+  saveOffer: (offer: Offer) => Promise<void>;
+  deleteOffer: (id: string) => Promise<void>;
   saveReview: (review: ReviewItem) => Promise<void>;
   deleteReview: (id: string) => Promise<void>;
   updateReviewStatus: (id: string, status: ReviewItem['status']) => Promise<void>;
@@ -49,13 +52,14 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [appointments, setAppointments] = useState<AppointmentBooking[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const loadAllData = async () => {
     setLoading(true);
     try {
       await initDBSeedData();
-      const [st, ex, sv, bl, rs, md, ap, rv, gl] = await Promise.all([
+      const [st, ex, sv, bl, rs, md, ap, rv, gl, ofs] = await Promise.all([
         dbService.getSettings(),
         dbService.getExperts(),
         dbService.getServices(),
@@ -65,6 +69,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         dbService.getAppointments(),
         dbService.getReviews(),
         dbService.getGallery(),
+        dbService.getOffers(),
       ]);
       setSettings(st);
       setExperts(ex);
@@ -75,6 +80,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setAppointments(ap);
       setReviews(rv);
       setGallery(gl);
+      setOffers(ofs);
     } catch (err) {
       console.error('Error loading SiteData from IndexedDB:', err);
     } finally {
@@ -159,6 +165,18 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await dbService.deleteGalleryItem(id);
     const updated = await dbService.getGallery();
     setGallery(updated);
+  };
+
+  const handleSaveOffer = async (offer: Offer) => {
+    await dbService.saveOffer(offer);
+    const updated = await dbService.getOffers();
+    setOffers(updated);
+  };
+
+  const handleDeleteOffer = async (id: string) => {
+    await dbService.deleteOffer(id);
+    const updated = await dbService.getOffers();
+    setOffers(updated);
   };
 
   const handleBookAppointment = async (apptData: Omit<AppointmentBooking, 'id' | 'createdAt' | 'status'>) => {
@@ -254,6 +272,7 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         appointments,
         reviews,
         gallery,
+        offers,
         loading,
         refreshData: loadAllData,
         updateSettings: handleUpdateSettings,
@@ -269,6 +288,8 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteMedia: handleDeleteMedia,
         saveGalleryItem: handleSaveGalleryItem,
         deleteGalleryItem: handleDeleteGalleryItem,
+        saveOffer: handleSaveOffer,
+        deleteOffer: handleDeleteOffer,
         bookAppointment: handleBookAppointment,
         updateAppointmentStatus: handleUpdateAppointmentStatus,
         saveReview: handleSaveReview,

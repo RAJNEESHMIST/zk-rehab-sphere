@@ -15,14 +15,14 @@ export const RehabJourney: React.FC = () => {
       step: '01',
       title: 'Appointment Scheduling',
       desc: 'Seamless booking via phone or WhatsApp. Your preferred home visit timing is confirmed across Chandigarh, Mohali, or Kharar.',
-      image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80',
+      image: zkReception,
       icon: <CalendarCheck size={22} className="text-cyan-400" />
     },
     {
       step: '02',
       title: 'Home Arrival & Hygiene Setup',
       desc: 'Our physiotherapist arrives punctually with sanitized equipment, protective wear, and portable clinical therapy modalities.',
-      image: zkReception,
+      image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1200&q=80',
       icon: <Car size={22} className="text-teal-400" />
     },
     {

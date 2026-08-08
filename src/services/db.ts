@@ -16,6 +16,7 @@ import bodyNeckImg from '../assets/treatments/body_neck.png';
 import postureCorrectionImg from '../assets/treatments/posture_correction.png';
 import electrotherapyImg from '../assets/treatments/electrotherapy.png';
 import shockwaveTherapyImg from '../assets/treatments/shockwave_therapy.png';
+import roboticRehabImg from '../assets/treatments/robotic_rehab.png';
 
 const DB_NAME = 'ZK_Rehab_Sphere_DB';
 const DB_VERSION = 4;
@@ -176,7 +177,7 @@ const initialGalleryItems: GalleryItem[] = [
     id: 'gal-12',
     title: 'Bedside Mechanical Spine Decompression',
     category: 'Advanced Equipment',
-    image: shockwaveTherapyImg,
+    image: roboticRehabImg,
     caption: 'Deploying high-traction decompression belts to reduce sciatic radiation.',
     location: 'Kharar'
   }
@@ -242,15 +243,12 @@ export const initDBSeedData = async (): Promise<void> => {
       await tx.done;
     }
 
-    // Seed Gallery if empty
-    const galleryCount = await db.count('gallery');
-    if (galleryCount === 0) {
-      const tx = db.transaction('gallery', 'readwrite');
-      for (const item of initialGalleryItems) {
-        await tx.store.put(item);
-      }
-      await tx.done;
+    // Seed Gallery - always overwrite to sync updated local high-res paths
+    const tx = db.transaction('gallery', 'readwrite');
+    for (const item of initialGalleryItems) {
+      await tx.store.put(item);
     }
+    await tx.done;
   } catch (error) {
     console.error('Failed to initialize IndexedDB seed data:', error);
   }

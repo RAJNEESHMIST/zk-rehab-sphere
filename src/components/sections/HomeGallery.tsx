@@ -17,6 +17,7 @@ import bodyNeckImg from '../../assets/treatments/body_neck.png';
 import postureCorrectionImg from '../../assets/treatments/posture_correction.png';
 import electrotherapyImg from '../../assets/treatments/electrotherapy.png';
 import shockwaveTherapyImg from '../../assets/treatments/shockwave_therapy.png';
+import roboticRehabImg from '../../assets/treatments/robotic_rehab.png';
 
 // Fallback high-quality recovery cards if IndexedDB is still loading/empty
 const fallbackGallery: GalleryItem[] = [
@@ -123,7 +124,7 @@ const fallbackGallery: GalleryItem[] = [
     id: 'gal-12',
     title: 'Bedside Mechanical Spine Decompression',
     category: 'Advanced Equipment',
-    image: shockwaveTherapyImg,
+    image: roboticRehabImg,
     caption: 'Deploying high-traction decompression belts to reduce sciatic radiation.',
     location: 'Kharar'
   }

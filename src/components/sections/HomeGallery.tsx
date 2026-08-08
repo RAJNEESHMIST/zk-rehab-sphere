@@ -139,6 +139,25 @@ export const HomeGallery: React.FC = () => {
 
   const categories = ['All', 'Neurological Care', 'Orthopedic Rehab', 'Spine Care', 'Advanced Equipment'];
 
+  // Dynamic image resolver to translate database cached Unsplash URLs to local high-resolution assets
+  const getGalleryImage = (imgUrl: string) => {
+    if (!imgUrl) return fallbackImg;
+    if (imgUrl.includes('photo-1576091160550-2173dba999ef') || imgUrl.includes('photo-1581071805260-15cc9c47d272')) return strokeRehabImg;
+    if (imgUrl.includes('photo-1516549655169-df83a0774514')) return parkinsonsTherapyImg;
+    if (imgUrl.includes('photo-1544367567-0f2fcb009e0b')) return balanceGaitImg;
+    if (imgUrl.includes('photo-1579684389782-64d84b5e901d') || imgUrl.includes('photo-1598256989800-fe5f95da9787')) return postSurgeryRehabImg;
+    if (imgUrl.includes('photo-1519826314078-191d81bf10b0')) return sportsInjuryRehabImg;
+    if (imgUrl.includes('photo-1518611012118-696072aa579a')) return jointPainManagementImg;
+    if (imgUrl.includes('photo-1506126613408-eca07ce68773')) return lowerBackPainImg;
+    if (imgUrl.includes('photo-1620188467120-5042ed1eb5da')) return bodyNeckImg;
+    if (imgUrl.includes('photo-1584515979956-d9f6e5d09982')) return electrotherapyImg;
+    if (imgUrl.includes('photo-1600334089648-b0d9d3028eb2')) return electrotherapyImg;
+    if (imgUrl.includes('photo-1629909613654-28e377c37b09')) return roboticRehabImg;
+    return imgUrl;
+  };
+
+  const fallbackImg = electrotherapyImg;
+
   // Fallback to local array if database items haven't finished loading/seeding
   const activeGalleryItems = gallery && gallery.length > 0 ? gallery : fallbackGallery;
 
@@ -228,7 +247,7 @@ export const HomeGallery: React.FC = () => {
                 {/* Image Container */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                   <img
-                    src={item.image}
+                    src={getGalleryImage(item.image)}
                     alt={item.title}
                     className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700"
                   />
@@ -314,7 +333,7 @@ export const HomeGallery: React.FC = () => {
                     <div className="relative aspect-[16/9] rounded-2xl overflow-hidden select-none bg-slate-950">
                       {/* After Image (Full width background) */}
                       <img
-                        src={activeLightboxItem.afterImage}
+                        src={getGalleryImage(activeLightboxItem.afterImage)}
                         alt="After Recovery"
                         className="absolute inset-0 w-full h-full object-cover"
                       />
@@ -328,7 +347,7 @@ export const HomeGallery: React.FC = () => {
                         style={{ width: `${sliderPosition}%` }}
                       >
                         <img
-                          src={activeLightboxItem.beforeImage}
+                          src={getGalleryImage(activeLightboxItem.beforeImage)}
                           alt="Initial Evaluation"
                           className="w-full h-full object-cover max-w-none"
                           style={{ width: '100%', height: '100%' }}
@@ -360,7 +379,7 @@ export const HomeGallery: React.FC = () => {
                     /* Standard Lightbox Image */
                     <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-slate-950">
                       <img
-                        src={activeLightboxItem.image}
+                        src={getGalleryImage(activeLightboxItem.image)}
                         alt={activeLightboxItem.title}
                         className="w-full h-full object-cover"
                       />

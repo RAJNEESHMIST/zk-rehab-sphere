@@ -166,6 +166,8 @@ export const HomeGallery: React.FC = () => {
     ? activeGalleryItems
     : activeGalleryItems.filter((item) => item.category === selectedFilter);
 
+  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, 6);
+
   return (
     <section id="gallery" className="py-24 relative overflow-hidden bg-slate-950/90">
       {/* Background Lighting */}

@@ -1,223 +1,154 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Award, HeartPulse, Sparkles, UserCheck, CheckCircle2, ChevronRight } from 'lucide-react';
-import { useCursor } from '../../context/CursorContext';
-import { TrustPillar } from '../../types';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { UserCheck, ShieldCheck, HeartPulse, Award, CheckCircle2, Home } from 'lucide-react';
 
-// Dynamic Unsplash images used for context-specific display
+// Import high-resolution local images
+import service1Img from '../../assets/service-1.png';
+import parkinsonsTherapyImg from '../../assets/treatments/parkinsons_therapy.png';
+import lowerBackPainImg from '../../assets/treatments/lower_back_pain.png';
+import postSurgeryRehabImg from '../../assets/treatments/post_surgery_rehab.png';
+import fallbackImg from '../../assets/physio-treatment.png';
 
-const trustPillars: TrustPillar[] = [
-  {
-    id: 'doctor-patient',
-    title: 'Certified Doctor Assessment',
-    subtitle: 'Direct home consultation by clinical specialists',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
-    badge: '100% Verified Care',
-    metrics: '8+ Years Expertise',
-    details: [
-      'Comprehensive neurological & orthopedic examination',
-      'Individualized baseline motion & strength diagnostic',
-      'Transparent treatment goal roadmap with family consultation'
-    ]
-  },
-  {
-    id: 'home-treatment',
-    title: 'Sanitized Home Therapy',
-    subtitle: 'Hospital-grade care in your living room comfort',
-    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
-    badge: 'Hygiene Assured',
-    metrics: '500+ Active Patients',
-    details: [
-      'Portable high-frequency ultrasound & TENS electrotherapy',
-      'Strict hygiene, sterile equipment & protective protocol',
-      'Zero commute strain for pain or mobility restricted patients'
-    ]
-  },
-  {
-    id: 'evidence-care',
-    title: 'Evidence-Based Protocols',
-    subtitle: 'Scientifically validated physical rehabilitation',
-    image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80',
-    badge: 'Clinical Excellence',
-    metrics: '98.4% Success Rate',
-    details: [
-      'Bobath & PNF techniques for stroke & neuro rehabilitation',
-      'McKenzie mechanical spine decompression protocols',
-      'Continuous daily progress tracking & clinical adjustments'
-    ]
-  },
-  {
-    id: 'exercise-guidance',
-    title: 'Supervised Functional Rehab',
-    subtitle: 'Hands-on correction & posture retraining',
-    image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    badge: 'Active Recovery',
-    metrics: '1-on-1 Dedicated',
-    details: [
-      'Step-by-step gait modification & unassisted walking practice',
-      'Targeted muscle strengthening & joint stabilization',
-      'Customized home exercise handbook for daily practice'
-    ]
-  },
-  {
-    id: 'ethical-practice',
-    title: 'Ethical & Compassionate Care',
-    subtitle: 'Patient dignity and family peace of mind',
-    image: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
-    badge: 'Trusted In Tricity',
-    metrics: 'Chandigarh • Mohali • Kharar',
-    details: [
-      'Transparent session pricing with zero hidden charges',
-      'Punctual physical therapist visits matching your preferred schedule',
-      'Direct WhatsApp access to your attending physical therapist'
-    ]
-  }
-];
+interface FeatureCard {
+  id: string;
+  badge: string;
+  title: string;
+  description: string;
+  image: string;
+  icon: React.ReactNode;
+}
 
 export const TrustSection: React.FC = () => {
-  const [activeId, setActiveId] = useState<string>(trustPillars[0].id);
-  const { setCursorMode, setCursorText } = useCursor();
+  const cards: FeatureCard[] = [
+    {
+      id: 'assessment',
+      badge: 'CLINICAL ASSESSMENT',
+      title: 'Certified Doctor Assessment',
+      description: 'Start with a professional assessment to understand your condition, movement, strength, and recovery needs.',
+      image: service1Img,
+      icon: <UserCheck className="text-cyan-400" size={20} />
+    },
+    {
+      id: 'home-visit',
+      badge: 'HOME VISIT',
+      title: 'Sanitized Home Therapy',
+      description: 'Receive professional physiotherapy in the comfort of your home with a clean and patient-focused approach.',
+      image: parkinsonsTherapyImg,
+      icon: <Home className="text-teal-400" size={20} />
+    },
+    {
+      id: 'evidence-based',
+      badge: 'EVIDENCE-BASED',
+      title: 'Evidence-Based Protocols',
+      description: 'Treatment plans follow clinically informed rehabilitation techniques selected for your condition and goals.',
+      image: lowerBackPainImg,
+      icon: <HeartPulse className="text-sky-400" size={20} />
+    },
+    {
+      id: 'functional-rehab',
+      badge: 'PERSONALIZED CARE',
+      title: 'Supervised Functional Rehab',
+      description: 'Progressive rehabilitation helps improve movement, strength, mobility, and everyday function.',
+      image: postSurgeryRehabImg,
+      icon: <Award className="text-cyan-400" size={20} />
+    }
+  ];
 
   return (
-    <section id="trust" className="py-20 lg:py-28 relative overflow-hidden bg-slate-950/80">
+    <section id="trust" className="py-24 relative overflow-hidden bg-slate-950">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-bold uppercase tracking-widest"
-          >
-            <ShieldCheck size={16} className="text-cyan-400" />
-            <span>Why Chandigarh Tricity Trusts Us</span>
-          </motion.div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight"
-          >
-            Real Professional Care In <span className="text-gradient">Your Own Home</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-300 text-base sm:text-lg leading-relaxed"
-          >
-            We prioritize authentic photography over generic illustrations. Explore our core clinical pillars and authentic home therapy environment below.
-          </motion.p>
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-extrabold uppercase tracking-widest">
+            Why Choose ZK Rehab Sphere
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Professional Care. <span className="text-gradient">Personal Recovery.</span>
+          </h2>
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Trusted home physiotherapy focused on safe treatment, clinical quality, and your individual recovery goals.
+          </p>
         </div>
 
-        {/* Interactive Expandable Horizontal Photo Gallery */}
-        <div className="flex flex-col lg:flex-row gap-4 h-[650px] lg:h-[520px] w-full">
-          {trustPillars.map((pillar) => {
-            const isActive = activeId === pillar.id;
-
-            return (
-              <motion.div
-                key={pillar.id}
-                layout
-                onClick={() => setActiveId(pillar.id)}
-                onMouseEnter={() => {
-                  setCursorMode('explore');
-                  setCursorText('Explore');
-                }}
-                onMouseLeave={() => {
-                  setCursorMode('default');
-                  setCursorText('');
-                }}
-                className={`relative rounded-[32px] overflow-hidden cursor-pointer border transition-all duration-500 group ${
-                  isActive
-                    ? 'lg:flex-[3.5] flex-1 border-cyan-400/60 shadow-[0_0_35px_rgba(6,182,212,0.3)] bg-slate-950/40'
-                    : 'lg:flex-[1] flex-none h-24 lg:h-auto border-white/10 opacity-75 hover:opacity-100 hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] bg-slate-950/80'
-                }`}
-              >
-                {/* Real Photo Background */}
-                <motion.img
-                  src={pillar.image}
-                  alt={pillar.title}
-                  animate={{ scale: isActive ? 1.05 : 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute inset-0 w-full h-full object-cover transform filter brightness-[0.85] group-hover:brightness-100 transition-all duration-700"
+        {/* 4 Equal-width Feature Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-12">
+          {cards.map((card, idx) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="flex flex-col rounded-[24px] overflow-hidden glass-panel border border-white/10 hover:border-cyan-400/30 bg-slate-950/80 shadow-xl transition-all duration-300"
+            >
+              {/* Image Area */}
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900 border-b border-white/5">
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = fallbackImg;
+                  }}
+                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                 />
-
-                {/* Dark Gradient Overlay */}
-                <div
-                  className={`absolute inset-0 transition-opacity duration-500 bg-gradient-to-t ${
-                    isActive
-                      ? 'from-slate-950 via-slate-950/80 to-transparent'
-                      : 'from-slate-950/95 via-slate-950/70 to-slate-950/30'
-                  }`}
-                />
-
-                {/* Pulsing card glow reflection */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                {/* Pillar Badge */}
-                <div className="absolute top-4 left-4 z-20">
-                  <span className="px-3.5 py-1.5 rounded-full bg-slate-950/90 border border-cyan-400/40 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-cyan-300">
-                    {pillar.badge}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                
+                {/* Floating Badge & Icon */}
+                <div className="absolute top-4 left-4 flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-full bg-slate-950/80 border border-cyan-400/20 text-[9px] font-black uppercase text-cyan-300 backdrop-blur-md">
+                    {card.badge}
                   </span>
                 </div>
-
-                {/* Content Container */}
-                <div className="absolute inset-0 p-6 lg:p-8 z-20 flex flex-col justify-end h-full">
-                  {/* Collapsed State Title (Rotated Vertical on Desktop for Premium Aesthetic) */}
-                  {!isActive && (
-                    <div className="flex lg:flex-col items-center justify-between lg:h-3/4 lg:justify-end gap-6 w-full pb-2">
-                      <h3 className="text-sm font-black text-slate-300 tracking-widest lg:[writing-mode:vertical-lr] lg:rotate-180 uppercase whitespace-nowrap group-hover:text-cyan-300 transition-colors">
-                        {pillar.title}
-                      </h3>
-                      <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-400 group-hover:text-slate-950 transition-all shrink-0">
-                        <ChevronRight size={16} className="lg:rotate-90" />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Expanded State Full View */}
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="space-y-4 max-w-xl"
-                    >
-                      <div className="inline-block text-[10px] font-black text-cyan-300 uppercase tracking-widest bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/30">
-                        {pillar.metrics}
-                      </div>
-
-                      <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
-                        {pillar.title}
-                      </h3>
-
-                      <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-                        {pillar.subtitle}
-                      </p>
-
-                      <div className="space-y-2 pt-3 border-t border-white/10">
-                        {pillar.details.map((detail, idx) => (
-                          <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
-                            <CheckCircle2 size={16} className="text-cyan-400 shrink-0 mt-0.5" />
-                            <span>{detail}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
+                <div className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-slate-950/80 border border-white/20 flex items-center justify-center backdrop-blur-md">
+                  {card.icon}
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+
+              {/* Text Info */}
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-medium">
+                    {card.description}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Ethical Statement and Trust Strip */}
+        <div className="max-w-4xl mx-auto mt-16 text-center space-y-8 border-t border-white/5 pt-10">
+          <p className="text-xs sm:text-sm text-slate-400 italic font-semibold max-w-2xl mx-auto">
+            "Patient-first care built around comfort, dignity, clear communication, and informed treatment decisions."
+          </p>
+
+          {/* Static Trust Row Strip */}
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-300 font-extrabold bg-white/5 border border-white/10 rounded-2xl py-4 px-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-cyan-400" />
+              <span>Professional Assessment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-cyan-400" />
+              <span>Home-Based Care</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-cyan-400" />
+              <span>Personalized Treatment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-cyan-400" />
+              <span>Patient-Centered Approach</span>
+            </div>
+          </div>
         </div>
 
       </div>

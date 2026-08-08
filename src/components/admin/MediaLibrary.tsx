@@ -34,6 +34,7 @@ import balanceGaitImg from '../../assets/treatments/balance_gait.png';
 import postSurgeryRehabImg from '../../assets/treatments/post_surgery_rehab.png';
 import sportsInjuryRehabImg from '../../assets/treatments/sports_injury_rehab.png';
 import jointPainManagementImg from '../../assets/treatments/joint_pain_management.png';
+import cervicalPainTherapyImg from '../../assets/treatments/cervical_pain_therapy.png';
 import lowerBackPainImg from '../../assets/treatments/lower_back_pain.png';
 import bodyNeckImg from '../../assets/treatments/body_neck.png';
 import postureCorrectionImg from '../../assets/treatments/posture_correction.png';

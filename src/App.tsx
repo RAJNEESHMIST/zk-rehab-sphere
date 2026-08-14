@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { CursorProvider } from './context/CursorContext';
 import { SiteDataProvider, useSiteData } from './context/SiteDataContext';
 import { AuthProvider } from './context/AuthContext';
@@ -13,26 +13,29 @@ import { EmergencyBanner } from './components/sections/EmergencyBanner';
 import { StatsSection } from './components/sections/StatsSection';
 import { ServicesGrid } from './components/sections/ServicesGrid';
 import { TrustSection } from './components/sections/TrustSection';
-import { RehabJourney } from './components/sections/RehabJourney';
-import { BodyNavigator } from './components/sections/BodyNavigator';
-import { HomeGallery } from './components/sections/HomeGallery';
 import { ExpertsSection } from './components/sections/ExpertsSection';
 import { Testimonials } from './components/sections/Testimonials';
-import { EquipmentSection } from './components/sections/EquipmentSection';
-import { ResourceBookshelf } from './components/sections/ResourceBookshelf';
-import { BlogSection } from './components/sections/BlogSection';
+import { RehabJourney } from './components/sections/RehabJourney';
 import { FAQSection } from './components/sections/FAQSection';
-import { GoogleMapSection } from './components/sections/GoogleMapSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { FooterSection } from './components/sections/FooterSection';
-import { AIChatAssistant } from './components/ui/AIChatAssistant';
-import { BookingModal } from './components/modals/BookingModal';
-import { SubmitReviewModal } from './components/modals/SubmitReviewModal';
-import { BlogListPage } from './components/blog/BlogListPage';
-import { BlogDetailPage } from './components/blog/BlogDetailPage';
-import { ReviewsPage } from './components/reviews/ReviewsPage';
-import { AdminLayout } from './components/admin/AdminLayout';
 import { OfferBanner } from './components/ui/OfferBanner';
+
+// Lazy-loaded heavy elements & pages
+const BodyNavigator = lazy(() => import('./components/sections/BodyNavigator').then(m => ({ default: m.BodyNavigator })));
+const HomeGallery = lazy(() => import('./components/sections/HomeGallery').then(m => ({ default: m.HomeGallery })));
+const EquipmentSection = lazy(() => import('./components/sections/EquipmentSection').then(m => ({ default: m.EquipmentSection })));
+const ResourceBookshelf = lazy(() => import('./components/sections/ResourceBookshelf').then(m => ({ default: m.ResourceBookshelf })));
+const BlogSection = lazy(() => import('./components/sections/BlogSection').then(m => ({ default: m.BlogSection })));
+const GoogleMapSection = lazy(() => import('./components/sections/GoogleMapSection').then(m => ({ default: m.GoogleMapSection })));
+const AIChatAssistant = lazy(() => import('./components/ui/AIChatAssistant').then(m => ({ default: m.AIChatAssistant })));
+const BookingModal = lazy(() => import('./components/modals/BookingModal').then(m => ({ default: m.BookingModal })));
+const SubmitReviewModal = lazy(() => import('./components/modals/SubmitReviewModal').then(m => ({ default: m.SubmitReviewModal })));
+const BlogListPage = lazy(() => import('./components/blog/BlogListPage').then(m => ({ default: m.BlogListPage })));
+const BlogDetailPage = lazy(() => import('./components/blog/BlogDetailPage').then(m => ({ default: m.BlogDetailPage })));
+const ReviewsPage = lazy(() => import('./components/reviews/ReviewsPage').then(m => ({ default: m.ReviewsPage })));
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+
 
 export function MainContent() {
   const { offers } = useSiteData();
@@ -79,106 +82,126 @@ export function MainContent() {
           <CustomCursor />
           <AnimatedBG />
 
-          {isAdminPage ? (
-            <AdminLayout />
-          ) : (
-            <>
-              <OfferBanner />
-              <FloatingNav onOpenBooking={() => handleOpenBooking()} />
-              
-              <main className={hasActiveOffer ? 'pt-8 sm:pt-10' : ''}>
-                {isBlogDetail ? (
-                  <BlogDetailPage
-                    slug={currentHash.replace('#blog/', '')}
-                    onBack={() => {
-                      window.location.hash = '#blog';
-                    }}
-                    onSelectBlog={(slug) => {
-                      window.location.hash = `#blog/${slug}`;
-                    }}
-                  />
-                ) : isBlogList ? (
-                  <BlogListPage
-                    onSelectBlog={(slug) => {
-                      window.location.hash = `#blog/${slug}`;
-                    }}
-                  />
-                ) : isReviewsPage ? (
-                  <ReviewsPage
-                    onOpenSubmitReview={() => setIsSubmitReviewOpen(true)}
-                  />
-                ) : (
-                  <>
-                    {/* 1. Hero Section */}
-                    <HeroSection onOpenBooking={() => handleOpenBooking()} />
-                    
-                    {/* Emergency Banner */}
-                    <EmergencyBanner />
+          <Suspense fallback={<LoadingScreen onComplete={() => {}} />}>
+            {isAdminPage ? (
+              <AdminLayout />
+            ) : (
+              <>
+                <OfferBanner />
+                <FloatingNav onOpenBooking={() => handleOpenBooking()} />
+                
+                <main className={hasActiveOffer ? 'pt-8 sm:pt-10' : ''}>
+                  {isBlogDetail ? (
+                    <BlogDetailPage
+                      slug={currentHash.replace('#blog/', '')}
+                      onBack={() => {
+                        window.location.hash = '#blog';
+                      }}
+                      onSelectBlog={(slug) => {
+                        window.location.hash = `#blog/${slug}`;
+                      }}
+                    />
+                  ) : isBlogList ? (
+                    <BlogListPage
+                      onSelectBlog={(slug) => {
+                        window.location.hash = `#blog/${slug}`;
+                      }}
+                    />
+                  ) : isReviewsPage ? (
+                    <ReviewsPage
+                      onOpenSubmitReview={() => setIsSubmitReviewOpen(true)}
+                    />
+                  ) : (
+                    <>
+                      {/* 1. Hero Section */}
+                      <HeroSection onOpenBooking={() => handleOpenBooking()} />
+                      
+                      {/* Emergency Banner */}
+                      <EmergencyBanner />
 
-                    {/* 2. Trust Numbers */}
-                    <StatsSection />
+                      {/* 2. Trust Numbers */}
+                      <StatsSection />
 
-                    {/* Services Section */}
-                    <ServicesGrid onOpenBooking={(s) => handleOpenBooking(s)} />
+                      {/* Services Section */}
+                      <ServicesGrid onOpenBooking={(s) => handleOpenBooking(s)} />
 
-                    {/* 3. Conditions (Body Navigator) */}
-                    <BodyNavigator onOpenBooking={(s) => handleOpenBooking(s)} />
+                      {/* 3. Conditions (Body Navigator) */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Assessment Tool...</div>}>
+                        <BodyNavigator onOpenBooking={(s) => handleOpenBooking(s)} />
+                      </Suspense>
 
-                    {/* 4. Why Choose ZK */}
-                    <TrustSection />
+                      {/* 4. Why Choose ZK */}
+                      <TrustSection />
 
-                    {/* 5. Real Photos */}
-                    <HomeGallery />
+                      {/* 5. Real Photos */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Gallery...</div>}>
+                        <HomeGallery />
+                      </Suspense>
 
-                    {/* 6. Reviews */}
-                    <Testimonials />
+                      {/* 6. Reviews */}
+                      <Testimonials />
 
-                    {/* 7. Doctors */}
-                    <ExpertsSection onOpenBooking={(d) => handleOpenBooking(d)} />
+                      {/* 7. Doctors */}
+                      <ExpertsSection onOpenBooking={(d) => handleOpenBooking(d)} />
 
-                    {/* 8. Process (Rehab Journey) */}
-                    <RehabJourney />
+                      {/* 8. Process (Rehab Journey) */}
+                      <RehabJourney />
 
-                    {/* 9. Equipment */}
-                    <EquipmentSection />
+                      {/* 9. Equipment */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Equipment...</div>}>
+                        <EquipmentSection />
+                      </Suspense>
 
-                    {/* Educational Books Section */}
-                    <ResourceBookshelf />
+                      {/* Educational Books Section */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Library...</div>}>
+                        <ResourceBookshelf />
+                      </Suspense>
 
-                    {/* Clinical Blog Articles Section */}
-                    <BlogSection />
+                      {/* Clinical Blog Articles Section */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Articles...</div>}>
+                        <BlogSection />
+                      </Suspense>
 
-                    {/* 10. FAQ */}
-                    <FAQSection />
+                      {/* 10. FAQ */}
+                      <FAQSection />
 
-                    {/* 11. Contact & Google Map */}
-                    <GoogleMapSection />
-                    <ContactSection />
-                  </>
-                )}
-              </main>
+                      {/* 11. Contact & Google Map */}
+                      <Suspense fallback={<div className="py-12 text-center text-cyan-400">Loading Map...</div>}>
+                        <GoogleMapSection />
+                      </Suspense>
+                      <ContactSection />
+                    </>
+                  )}
+                </main>
 
-              <FooterSection />
-              
-              {/* Floating WhatsApp and Call Action Buttons in Right-Bottom Corner */}
-              <FloatingContactButtons onOpenBooking={() => handleOpenBooking()} />
-              
-              {/* AI Chat Assistant Widget */}
-              <AIChatAssistant />
-            </>
-          )}
+                <FooterSection />
+                
+                {/* Floating WhatsApp and Call Action Buttons in Right-Bottom Corner */}
+                <FloatingContactButtons onOpenBooking={() => handleOpenBooking()} />
+                
+                {/* AI Chat Assistant Widget */}
+                <Suspense fallback={null}>
+                  <AIChatAssistant />
+                </Suspense>
+              </>
+            )}
+          </Suspense>
 
-          <BookingModal
-            isOpen={isBookingOpen}
-            onClose={() => setIsBookingOpen(false)}
-            initialService={bookingService}
-            initialDoctor={bookingDoctor}
-          />
+          <Suspense fallback={null}>
+            <BookingModal
+              isOpen={isBookingOpen}
+              onClose={() => setIsBookingOpen(false)}
+              initialService={bookingService}
+              initialDoctor={bookingDoctor}
+            />
+          </Suspense>
 
-          <SubmitReviewModal
-            isOpen={isSubmitReviewOpen}
-            onClose={() => setIsSubmitReviewOpen(false)}
-          />
+          <Suspense fallback={null}>
+            <SubmitReviewModal
+              isOpen={isSubmitReviewOpen}
+              onClose={() => setIsSubmitReviewOpen(false)}
+            />
+          </Suspense>
         </div>
       </SmoothScroll>
     </>

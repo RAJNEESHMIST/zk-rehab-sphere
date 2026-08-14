@@ -8,12 +8,20 @@ export const SiteSettingsEditor: React.FC = () => {
   const { settings, updateSettings } = useSiteData();
   const [formData, setFormData] = useState<SiteSettings>({ ...settings });
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateSettings(formData);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setSaved(false);
+    setErrorMsg(null);
+    try {
+      await updateSettings(formData);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to update settings:', err);
+      setErrorMsg('Unable to save changes. Please try again.');
+    }
   };
 
   return (
@@ -29,7 +37,14 @@ export const SiteSettingsEditor: React.FC = () => {
         {saved && (
           <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
             <CheckCircle2 size={16} />
-            <span>Site settings updated & saved to IndexedDB! Public website updated live.</span>
+            <span>Site settings updated & saved successfully! Public website updated live.</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-bold">
+            <span>⚠️</span>
+            <span>{errorMsg}</span>
           </div>
         )}
 

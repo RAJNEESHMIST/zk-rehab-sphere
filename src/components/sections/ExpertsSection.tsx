@@ -55,6 +55,7 @@ export const ExpertsSection: React.FC<ExpertsSectionProps> = ({ onOpenBooking })
                   <img
                     src={doctor.image}
                     alt={doctor.name}
+                    loading="lazy"
                     className="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />

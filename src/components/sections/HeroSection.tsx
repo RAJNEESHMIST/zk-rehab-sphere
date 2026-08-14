@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowRight, ShieldCheck, Sparkles, MapPin, CheckCircle2, PhoneCall, Star, Clock, Home, Award } from 'lucide-react';
-import { HeroFrame3D } from '../3d/HeroFrame3D';
+const HeroFrame3D = lazy(() => import('../3d/HeroFrame3D').then(m => ({ default: m.HeroFrame3D })));
 import { useCursor } from '../../context/CursorContext';
 import { useSiteData } from '../../context/SiteDataContext';
 
@@ -264,7 +264,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenBooking }) => {
 
           {/* Right Column: Founder Sajid Khan 3D Interactive Card Frame */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <HeroFrame3D />
+            <Suspense fallback={<div className="w-full h-[600px] flex items-center justify-center text-cyan-400">Loading interactive view...</div>}>
+              <HeroFrame3D />
+            </Suspense>
           </div>
 
         </div>

@@ -14,14 +14,14 @@ export const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete
           clearInterval(interval);
           setTimeout(() => {
             setIsFinished(true);
-            setTimeout(onComplete, 600);
-          }, 300);
+            setTimeout(onComplete, 200);
+          }, 100);
           return 100;
         }
-        const increment = Math.floor(Math.random() * 15) + 5;
+        const increment = Math.floor(Math.random() * 25) + 15;
         return Math.min(100, prev + increment);
       });
-    }, 120);
+    }, 40);
 
     return () => clearInterval(interval);
   }, [onComplete]);

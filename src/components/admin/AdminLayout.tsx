@@ -15,8 +15,15 @@ import { OfferManager } from './OfferManager';
 
 export const AdminLayout: React.FC = () => {
   const { isAdmin, login, logout } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(() => {
+    return localStorage.getItem('zk_admin_remember_me') === 'true';
+  });
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem('zk_admin_saved_username') || '';
+  });
+  const [password, setPassword] = useState(() => {
+    return localStorage.getItem('zk_admin_saved_password') || '';
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services' | 'offers'>('dashboard');
@@ -28,6 +35,15 @@ export const AdminLayout: React.FC = () => {
       setLoginError(true);
     } else {
       setLoginError(false);
+      if (rememberMe) {
+        localStorage.setItem('zk_admin_remember_me', 'true');
+        localStorage.setItem('zk_admin_saved_username', username);
+        localStorage.setItem('zk_admin_saved_password', password);
+      } else {
+        localStorage.removeItem('zk_admin_remember_me');
+        localStorage.removeItem('zk_admin_saved_username');
+        localStorage.removeItem('zk_admin_saved_password');
+      }
     }
   };
 
@@ -81,6 +97,18 @@ export const AdminLayout: React.FC = () => {
                   {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between py-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="rounded border-white/10 bg-white/5 text-cyan-400 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                />
+                <span className="text-xs text-slate-300 font-bold">Remember Me & Save Password</span>
+              </label>
             </div>
 
             {loginError && (

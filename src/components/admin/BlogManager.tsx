@@ -8,8 +8,12 @@ import { CloudinaryUploader } from '../ui/CloudinaryUploader';
 export const BlogManager: React.FC = () => {
   const { blogs, saveBlog, deleteBlog } = useSiteData();
   const [editingBlog, setEditingBlog] = useState<Partial<BlogPost> | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCreateClick = () => {
+    setSuccessMsg(null);
+    setErrorMsg(null);
     setEditingBlog({
       id: `post-${Date.now()}`,
       title: '',
@@ -28,14 +32,27 @@ export const BlogManager: React.FC = () => {
   };
 
   const handleEditClick = (blog: BlogPost) => {
+    setSuccessMsg(null);
+    setErrorMsg(null);
     setEditingBlog({ ...blog });
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBlog || !editingBlog.title) return;
-    await saveBlog(editingBlog as BlogPost);
-    setEditingBlog(null);
+    setSuccessMsg(null);
+    setErrorMsg(null);
+    try {
+      await saveBlog(editingBlog as BlogPost);
+      setSuccessMsg('Updated successfully!');
+      setTimeout(() => {
+        setSuccessMsg(null);
+        setEditingBlog(null);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to save article:', err);
+      setErrorMsg('Unable to save changes. Please try again.');
+    }
   };
 
   return (
@@ -66,6 +83,18 @@ export const BlogManager: React.FC = () => {
           </div>
 
           <form onSubmit={handleSave} className="space-y-4">
+            {successMsg && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                <span>✓</span>
+                <span>{successMsg}</span>
+              </div>
+            )}
+            {errorMsg && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-bold">
+                <span>⚠️</span>
+                <span>{errorMsg}</span>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Article Title</label>
               <input

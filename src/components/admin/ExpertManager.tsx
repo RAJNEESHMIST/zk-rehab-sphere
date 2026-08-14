@@ -8,12 +8,18 @@ import { CloudinaryUploader } from '../ui/CloudinaryUploader';
 export const ExpertManager: React.FC = () => {
   const { experts, saveExpert, deleteExpert } = useSiteData();
   const [editingExpert, setEditingExpert] = useState<Partial<Expert> | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleEditClick = (expert: Expert) => {
+    setSuccessMsg(null);
+    setErrorMsg(null);
     setEditingExpert({ ...expert });
   };
 
   const handleCreateClick = () => {
+    setSuccessMsg(null);
+    setErrorMsg(null);
     setEditingExpert({
       id: `exp-${Date.now()}`,
       name: '',
@@ -33,8 +39,19 @@ export const ExpertManager: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingExpert || !editingExpert.name) return;
-    await saveExpert(editingExpert as Expert);
-    setEditingExpert(null);
+    setSuccessMsg(null);
+    setErrorMsg(null);
+    try {
+      await saveExpert(editingExpert as Expert);
+      setSuccessMsg('Updated successfully!');
+      setTimeout(() => {
+        setSuccessMsg(null);
+        setEditingExpert(null);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to save expert:', err);
+      setErrorMsg('Unable to save changes. Please try again.');
+    }
   };
 
   return (
@@ -65,6 +82,18 @@ export const ExpertManager: React.FC = () => {
           </div>
 
           <form onSubmit={handleSave} className="space-y-4">
+            {successMsg && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                <span>✓</span>
+                <span>{successMsg}</span>
+              </div>
+            )}
+            {errorMsg && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs font-bold">
+                <span>⚠️</span>
+                <span>{errorMsg}</span>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Doctor Name</label>

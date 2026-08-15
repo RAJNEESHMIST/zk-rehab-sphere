@@ -20,6 +20,7 @@ import { FAQSection } from './components/sections/FAQSection';
 import { ContactSection } from './components/sections/ContactSection';
 import { FooterSection } from './components/sections/FooterSection';
 import { OfferBanner } from './components/ui/OfferBanner';
+import { FounderPage } from './components/sections/FounderPage';
 
 // Lazy-loaded heavy elements & pages
 const BodyNavigator = lazy(() => import('./components/sections/BodyNavigator').then(m => ({ default: m.BodyNavigator })));
@@ -71,6 +72,7 @@ export function MainContent() {
   const isBlogList = currentHash === '#blog';
   const isReviewsPage = currentHash === '#reviews';
   const isAdminPage = currentHash === '#admin';
+  const isFounderPage = currentHash === '#founder';
   const hasActiveOffer = offers && offers.some(o => o.isActive);
 
   return (
@@ -110,6 +112,11 @@ export function MainContent() {
                   ) : isReviewsPage ? (
                     <ReviewsPage
                       onOpenSubmitReview={() => setIsSubmitReviewOpen(true)}
+                    />
+                  ) : isFounderPage ? (
+                    <FounderPage
+                      onBack={() => { window.location.hash = ''; }}
+                      onOpenBooking={() => handleOpenBooking()}
                     />
                   ) : (
                     <>

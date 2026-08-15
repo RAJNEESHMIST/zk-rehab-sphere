@@ -33,6 +33,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
     { label: 'Conditions', href: '#navigator' },
     { label: 'Services', href: '#services' },
     { label: 'Our Team', href: '#experts' },
+    { label: 'Founder', href: '#founder' },
     { label: 'Reviews', href: '#testimonials' },
     { label: 'Gallery', href: '#gallery' },
     { label: 'Contact', href: '#contact' },
@@ -45,11 +46,23 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
       onOpenBooking();
       return;
     }
-    setActiveSection(href.replace('#', ''));
-    const el = document.querySelector(href);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    
+    if (['#blog', '#founder', '#testimonials', '#admin'].includes(href)) {
+      window.location.hash = href;
+      return;
     }
+
+    setActiveSection(href.replace('#', ''));
+    if (window.location.hash && window.location.hash !== href) {
+      window.location.hash = '';
+    }
+    
+    setTimeout(() => {
+      const el = document.querySelector(href);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 50);
   };
 
   const hasActiveOffer = offers && offers.some(o => o.isActive);

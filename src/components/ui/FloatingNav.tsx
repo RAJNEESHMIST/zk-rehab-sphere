@@ -32,7 +32,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
     { label: 'Home', href: '#home' },
     { label: 'Conditions', href: '#navigator' },
     { label: 'Services', href: '#services' },
-    { label: 'Doctors', href: '#experts' },
+    { label: 'Our Team', href: '#experts' },
     { label: 'Reviews', href: '#testimonials' },
     { label: 'Gallery', href: '#gallery' },
     { label: 'Contact', href: '#contact' },

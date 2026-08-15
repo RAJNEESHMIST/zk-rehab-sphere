@@ -207,25 +207,47 @@ export const initDBSeedData = async (): Promise<void> => {
       }
     }
 
-    // 2. Seed Experts
+    // 2. Seed/Sync Experts - Only run migration and initial seed if not already migrated or empty
     const expertsCount = await db.count('experts');
-    if (expertsCount === 0) {
-      const tx = db.transaction('experts', 'readwrite');
-      for (const expert of initialExperts) {
-        await tx.store.put(expert);
+    const hasMigrated = settings && (settings as any).migrations?.v1;
+    if (expertsCount === 0 || !hasMigrated) {
+      // Remove Sajid Khan (exp-1)
+      await db.delete('experts', 'exp-1');
+      if (firestoreDb) {
+        try {
+          await deleteDoc(doc(firestoreDb, 'experts', 'exp-1'));
+        } catch (e) {
+          console.warn('Failed to delete Sajid Khan from Firestore:', e);
+        }
       }
-      await tx.done;
-    }
-    if (firestoreDb) {
-      try {
-        const querySnapshot = await getDocs(collection(firestoreDb, 'experts'));
-        if (querySnapshot.empty) {
-          for (const expert of initialExperts) {
+
+      // Sync/update initial experts
+      const txExperts = db.transaction('experts', 'readwrite');
+      for (const expert of initialExperts) {
+        await txExperts.store.put(expert);
+        if (firestoreDb) {
+          try {
             await setDoc(doc(firestoreDb, 'experts', expert.id), expert);
+          } catch (e) {
+            console.warn('Failed to sync expert to Firestore:', e);
           }
         }
-      } catch (e) {
-        console.warn('Failed to seed experts to Firestore:', e);
+      }
+      await txExperts.done;
+
+      // Update settings with migration flag
+      const currentSettings = settings || { ...initialSiteSettings };
+      (currentSettings as any).migrations = {
+        ...(currentSettings as any).migrations,
+        v1: true
+      };
+      await db.put('settings', currentSettings, 'current');
+      if (firestoreDb) {
+        try {
+          await setDoc(doc(firestoreDb, 'settings', 'current'), currentSettings);
+        } catch (e) {
+          console.warn('Failed to sync settings migration to Firestore:', e);
+        }
       }
     }
 
@@ -317,22 +339,25 @@ export const initDBSeedData = async (): Promise<void> => {
       }
     }
 
-    // 7. Seed Gallery - always overwrite to sync updated local high-res paths
-    const tx = db.transaction('gallery', 'readwrite');
-    for (const item of initialGalleryItems) {
-      await tx.store.put(item);
-    }
-    await tx.done;
-    if (firestoreDb) {
-      try {
-        const querySnapshot = await getDocs(collection(firestoreDb, 'gallery'));
-        if (querySnapshot.empty) {
-          for (const item of initialGalleryItems) {
-            await setDoc(doc(firestoreDb, 'gallery', item.id), item);
+    // 7. Seed Gallery - Only seed if empty to preserve admin modifications
+    const galleryCount = await db.count('gallery');
+    if (galleryCount === 0) {
+      const tx = db.transaction('gallery', 'readwrite');
+      for (const item of initialGalleryItems) {
+        await tx.store.put(item);
+      }
+      await tx.done;
+      if (firestoreDb) {
+        try {
+          const querySnapshot = await getDocs(collection(firestoreDb, 'gallery'));
+          if (querySnapshot.empty) {
+            for (const item of initialGalleryItems) {
+              await setDoc(doc(firestoreDb, 'gallery', item.id), item);
+            }
           }
+        } catch (e) {
+          console.warn('Failed to seed gallery to Firestore:', e);
         }
-      } catch (e) {
-        console.warn('Failed to seed gallery to Firestore:', e);
       }
     }
 

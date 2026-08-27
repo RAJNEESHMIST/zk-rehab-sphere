@@ -17,6 +17,8 @@ import ExpertFormPage from '../pages/dashboard/ExpertFormPage';
 import Blog from '../pages/Blog';
 import BlogPostPage from '../pages/BlogPostPage';
 import BlogFormPage from '../pages/dashboard/BlogFormPage';
+import Collaborations from '../pages/Collaborations';
+import Assessment from '../pages/Assessment';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -43,6 +45,9 @@ const AppRoutes = () => {
       <Route path="/resources" element={<Resources />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/collaborations" element={<Collaborations />} />
+      <Route path="/assessment" element={<Assessment />} />
+
 
       {/* Protected Profile Route (All Roles) */}
       <Route

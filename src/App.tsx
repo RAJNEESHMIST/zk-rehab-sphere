@@ -1,7 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { CursorProvider } from './context/CursorContext';
 import { SiteDataProvider, useSiteData } from './context/SiteDataContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext'; // Force re-compile resolution
 import { CustomCursor } from './components/ui/CustomCursor';
 import { AnimatedBG } from './components/ui/AnimatedBG';
 import { SmoothScroll } from './components/ui/SmoothScroll';
@@ -36,7 +36,11 @@ const BlogListPage = lazy(() => import('./components/blog/BlogListPage').then(m 
 const BlogDetailPage = lazy(() => import('./components/blog/BlogDetailPage').then(m => ({ default: m.BlogDetailPage })));
 const ReviewsPage = lazy(() => import('./components/reviews/ReviewsPage').then(m => ({ default: m.ReviewsPage })));
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const Collaborations = lazy(() => import('./pages/Collaborations'));
+const Assessment = lazy(() => import('./pages/Assessment'));
 
+// @ts-ignore
+import { analyticsAPI } from './api/axios';
 
 export function MainContent() {
   const { offers } = useSiteData();
@@ -56,6 +60,73 @@ export function MainContent() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  // Background Anonymous Visitor Tracking & UTM Attribution Pipeline
+  useEffect(() => {
+    try {
+      let visitorId = localStorage.getItem('zk_visitor_id');
+      if (!visitorId) {
+        visitorId = 'vis-' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('zk_visitor_id', visitorId);
+      }
+      
+      let sessionId = sessionStorage.getItem('zk_session_id');
+      if (!sessionId) {
+        sessionId = 'sess-' + Math.random().toString(36).substring(2, 15);
+        sessionStorage.setItem('zk_session_id', sessionId);
+      }
+
+      const width = window.innerWidth;
+      const device = width < 640 ? 'mobile' : width < 1024 ? 'tablet' : 'desktop';
+
+      const ua = navigator.userAgent;
+      let browser = 'Other';
+      if (ua.includes('Chrome')) browser = 'Chrome';
+      else if (ua.includes('Safari')) browser = 'Safari';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Edge')) browser = 'Edge';
+
+      let os = 'Other';
+      if (ua.includes('Windows')) os = 'Windows';
+      else if (ua.includes('Macintosh')) os = 'macOS';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+      else if (ua.includes('Android')) os = 'Android';
+      else if (ua.includes('Linux')) os = 'Linux';
+
+      const getCampaignParams = () => {
+        const url = window.location.href;
+        const params: Record<string, string> = {};
+        const targetKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'campaign', 'venue'];
+        targetKeys.forEach(key => {
+          const regex = new RegExp(`[?&]${key}=([^&#]*)`, 'i');
+          const match = url.match(regex);
+          if (match) {
+            params[key] = decodeURIComponent(match[1]);
+          }
+        });
+        return params;
+      };
+
+      const campaignParams = getCampaignParams();
+      const activePage = currentHash || '#home';
+
+      // Skip logging admin route hits to keep statistics clean
+      if (!activePage.startsWith('#admin')) {
+        analyticsAPI.logEvent({
+          page: activePage,
+          visitorId,
+          sessionId,
+          device,
+          browser,
+          os,
+          referrer: document.referrer || 'Direct',
+          ...campaignParams
+        }).catch((e: any) => console.warn('Visitor tracking error:', e));
+      }
+    } catch (err) {
+      console.warn('Analytics system failed safely:', err);
+    }
+  }, [currentHash]);
+
   const handleOpenBooking = (serviceOrDoctorOrArea?: string) => {
     if (serviceOrDoctorOrArea) {
       if (serviceOrDoctorOrArea.includes('Dr.') || serviceOrDoctorOrArea.includes('Sajid')) {
@@ -73,6 +144,8 @@ export function MainContent() {
   const isReviewsPage = currentHash === '#reviews';
   const isAdminPage = currentHash === '#admin';
   const isFounderPage = currentHash === '#founder';
+  const isCollaborationsPage = currentHash === '#collaborations';
+  const isAssessmentPage = currentHash.startsWith('#assessment');
   const hasActiveOffer = offers && offers.some(o => o.isActive);
 
   return (
@@ -118,6 +191,10 @@ export function MainContent() {
                       onBack={() => { window.location.hash = ''; }}
                       onOpenBooking={() => handleOpenBooking()}
                     />
+                  ) : isCollaborationsPage ? (
+                    <Collaborations />
+                  ) : isAssessmentPage ? (
+                    <Assessment />
                   ) : (
                     <>
                       {/* 1. Hero Section */}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, LayoutDashboard, UserCheck, FileText, Image as ImageIcon, Settings as SettingsIcon, LogOut, ArrowLeft, Lock, Star, Eye, EyeOff, Gift } from 'lucide-react';
+import { Shield, LayoutDashboard, UserCheck, FileText, Image as ImageIcon, Settings as SettingsIcon, LogOut, ArrowLeft, Lock, Star, Eye, EyeOff, Gift, Building2, BarChart2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { DashboardHome } from './DashboardHome';
 import { ExpertManager } from './ExpertManager';
@@ -12,6 +12,46 @@ import { ReviewManager } from './ReviewManager';
 import { GalleryManager } from './GalleryManager';
 import { ServiceManager } from './ServiceManager';
 import { OfferManager } from './OfferManager';
+// @ts-ignore
+import AdminDashboard from '../../pages/dashboard/AdminDashboard';
+
+const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
+
+class AdminErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Admin Dashboard Error Boundary caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 bg-[#0b0f19] border border-red-500/20 rounded-3xl text-center space-y-4">
+          <div className="w-12 h-12 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">⚠️</div>
+          <h3 className="text-lg font-bold text-white">Something went wrong</h3>
+          <p className="text-slate-400 text-xs max-w-sm mx-auto">
+            The Collaborations & Camps section could not be loaded. Please try again.
+          </p>
+          <button 
+            onClick={() => this.setState({ hasError: false })}
+            className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export const AdminLayout: React.FC = () => {
   const { isAdmin, login, logout } = useAuth();
@@ -26,7 +66,7 @@ export const AdminLayout: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services' | 'offers'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'experts' | 'blogs' | 'reviews' | 'media' | 'settings' | 'gallery' | 'services' | 'offers' | 'collaborations' | 'analytics'>('dashboard');
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,7 +183,7 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-16 px-4 relative z-20">
+    <div className="min-h-screen pt-10 pb-16 px-4 relative z-20">
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col lg:flex-row gap-8">
           
@@ -168,6 +208,7 @@ export const AdminLayout: React.FC = () => {
             <div className="p-2 rounded-3xl glass-panel border border-white/10 space-y-1">
               {[
                 { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+                { id: 'analytics', label: 'Analytics & Insights', icon: <BarChart2 size={18} /> },
                 { id: 'experts', label: 'Doctors / Experts', icon: <UserCheck size={18} /> },
                 { id: 'services', label: 'Services & Cards', icon: <SettingsIcon size={18} /> },
                 { id: 'blogs', label: 'Articles & Blogs', icon: <FileText size={18} /> },
@@ -175,6 +216,7 @@ export const AdminLayout: React.FC = () => {
                 { id: 'gallery', label: 'Patient Gallery', icon: <ImageIcon size={18} /> },
                 { id: 'media', label: 'Media Library', icon: <ImageIcon size={18} /> },
                 { id: 'offers', label: 'Website Offers', icon: <Gift size={18} /> },
+                { id: 'collaborations', label: 'Collaborations & Camps', icon: <Building2 size={18} /> },
                 { id: 'settings', label: 'Site Settings', icon: <SettingsIcon size={18} /> },
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -210,6 +252,11 @@ export const AdminLayout: React.FC = () => {
           {/* Main Dashboard Content View */}
           <div className="flex-1">
             {activeTab === 'dashboard' && <DashboardHome />}
+            {activeTab === 'analytics' && (
+              <Suspense fallback={<div className="p-8 text-center text-cyan-400">Loading Analytics...</div>}>
+                <AnalyticsDashboard />
+              </Suspense>
+            )}
             {activeTab === 'experts' && <ExpertManager />}
             {activeTab === 'services' && <ServiceManager />}
             {activeTab === 'blogs' && <BlogManager />}
@@ -217,6 +264,11 @@ export const AdminLayout: React.FC = () => {
             {activeTab === 'gallery' && <GalleryManager />}
             {activeTab === 'media' && <MediaLibrary />}
             {activeTab === 'offers' && <OfferManager />}
+            {activeTab === 'collaborations' && (
+              <AdminErrorBoundary>
+                <AdminDashboard initialTab="collaborations" />
+              </AdminErrorBoundary>
+            )}
             {activeTab === 'settings' && <SiteSettingsEditor />}
           </div>
 

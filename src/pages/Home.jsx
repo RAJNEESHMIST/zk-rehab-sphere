@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Stethoscope, BookOpen, Users, ArrowRight, GraduationCap } from 'lucide-react';
+import { Activity, Stethoscope, BookOpen, Users, ArrowRight, GraduationCap, Gift, Tag, Sparkles, Clock } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 import BookingModal from '../components/BookingModal';
 import ExpertCard from '../components/ExpertCard';
 import ExpertBioModal from '../components/ExpertBioModal';
-import { expertsAPI } from '../api/axios';
+import { useSiteData } from '../context/SiteDataContext';
 
 
 
@@ -19,24 +19,9 @@ import expertNuman from '../assets/expert-numan.jpeg';
 
 const Home = () => {
   const [isBookingOpen, setIsBookingOpen] = React.useState(false);
-  const [experts, setExperts] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const { experts, offers, loading } = useSiteData();
   const [selectedExpert, setSelectedExpert] = React.useState(null);
   const [isBioModalOpen, setIsBioModalOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    const fetchExperts = async () => {
-      try {
-        const res = await expertsAPI.getAll();
-        setExperts(res.data.experts || []);
-      } catch (err) {
-        console.error('Failed to load experts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchExperts();
-  }, []);
 
   const handleViewProfile = (expert) => {
     setSelectedExpert(expert);
@@ -191,6 +176,68 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* SECTION: ACTIVE OFFERS & PROMOTIONS */}
+      {offers && offers.filter(o => o.isActive).length > 0 && (
+        <section className="py-16 lg:py-20 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="container mx-auto px-4">
+            <SectionTitle 
+              title="Exclusive Offers & Programs" 
+              subtitle="Maximize your recovery with our active diagnostic benefits and specialized packages." 
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+              {offers.filter(o => o.isActive).map((offer) => (
+                <div 
+                  key={offer.id} 
+                  className="relative overflow-hidden bg-white border border-slate-200/80 hover:border-cyan-500/30 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                >
+                  {/* Decorative corner tag border */}
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-cyan-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+                  
+                  <div>
+                    {/* Icon & Title */}
+                    <div className="flex items-center gap-3.5 mb-5">
+                      <div className="w-11 h-11 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center shrink-0 border border-cyan-100">
+                        <Gift size={20} className="stroke-[2]" />
+                      </div>
+                      <span className="text-[9px] font-black bg-cyan-500/10 text-cyan-600 px-2.5 py-0.5 rounded-full tracking-wider uppercase">
+                        Limited Time
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-slate-800 leading-snug mb-3 group-hover:text-cyan-600 transition-colors">
+                      {offer.title}
+                    </h3>
+                    
+                    <p className="text-slate-505 text-xs sm:text-sm leading-relaxed mb-6">
+                      {offer.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-5 border-t border-slate-100 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                      <Clock size={12} className="text-cyan-500" />
+                      <span>Active Offer</span>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => setIsBookingOpen(true)}
+                      size="sm"
+                      className="text-[10px] font-bold px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 rounded-lg hover:from-cyan-600 hover:to-teal-600 shadow-sm shadow-cyan-500/10"
+                    >
+                      Claim Offer
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SECTION 4: OUR EXPERTS */}
       <section className="py-16 lg:py-20 bg-white">

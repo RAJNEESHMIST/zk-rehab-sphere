@@ -19,7 +19,7 @@ export const OfferBanner: React.FC = () => {
         exit={{ height: 0, opacity: 0 }}
         className="w-full fixed top-0 left-0 right-0 z-[10001] bg-gradient-to-r from-cyan-500 via-sky-500 to-teal-500 text-slate-950 text-xs font-black shadow-lg overflow-hidden border-b border-cyan-400/20"
       >
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2 text-center">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-center gap-2 text-center">
           <span className="flex items-center gap-1.5 bg-slate-950 text-cyan-300 px-2 py-0.5 rounded-full text-[10px] uppercase font-black tracking-wider animate-pulse shrink-0">
             <Gift size={10} className="stroke-[2.5]" />
             Offer

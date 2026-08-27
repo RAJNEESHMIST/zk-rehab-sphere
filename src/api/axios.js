@@ -40,11 +40,12 @@ const parseAndUploadFormData = async (formData, storagePath = 'uploads') => {
         try {
           parsedValue = await uploadFile(value, storagePath);
         } catch (e) {
-          console.error('Failed to upload file to Firebase Storage:', e);
-          parsedValue = '';
+          console.error('Failed to upload file to Cloudinary:', e);
+          continue;
         }
       } else {
-        parsedValue = '';
+        // Skip size 0 files to avoid overwriting existing URLs in DB
+        continue;
       }
     } else {
       if (value === 'true') {
@@ -209,6 +210,45 @@ seedDatabase();
 
 
 // ─── Typed API Helpers ─────────────────────────────────────────────────────────
+let activeSessionUser = null;
+
+export const setSessionUser = (user) => {
+  activeSessionUser = user;
+};
+
+export const enforceAdmin = async () => {
+  if (!activeSessionUser) {
+    const firebaseUser = auth.currentUser;
+    if (firebaseUser) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          activeSessionUser = userDoc.data();
+          return;
+        }
+      } catch (e) {
+        console.warn('enforceAdmin background doc fetch failed:', e);
+      }
+    }
+    const err = new Error('Forbidden');
+    err.response = { 
+      status: 403, 
+      statusText: 'Forbidden', 
+      data: { message: '403 Forbidden: Admin privileges required.' } 
+    };
+    throw err;
+  }
+  
+  if (activeSessionUser.role !== 'admin') {
+    const err = new Error('Forbidden');
+    err.response = { 
+      status: 403, 
+      statusText: 'Forbidden', 
+      data: { message: '403 Forbidden: Admin privileges required.' } 
+    };
+    throw err;
+  }
+};
 
 /** Auth */
 export const authAPI = {
@@ -221,8 +261,8 @@ export const authAPI = {
       const newUser = {
         _id: firebaseUser.uid,
         firebaseUid: firebaseUser.uid,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+        email: firebaseUser.email || '',
+        name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Guest'),
         photo: firebaseUser.photoURL || '',
         role: isSuperAdmin ? 'admin' : 'patient',
         isActive: true,
@@ -279,8 +319,8 @@ export const authAPI = {
       user = {
         _id: firebaseUser.uid,
         firebaseUid: firebaseUser.uid,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+        email: firebaseUser.email || '',
+        name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Guest'),
         photo: firebaseUser.photoURL || '',
         role: isSuperAdmin ? 'admin' : 'patient',
         isActive: true,
@@ -724,6 +764,7 @@ export const newsletterAPI = {
 /** Users (Admin) */
 export const usersAPI = {
   getAll: async (params = {}) => {
+    await enforceAdmin();
     let q = collection(db, 'users');
     if (params.role) {
       q = query(q, where('role', '==', params.role));
@@ -781,6 +822,7 @@ export const usersAPI = {
     return mockResponse({ success: true });
   },
   getDashboardStats: async () => {
+    await enforceAdmin();
     const usersSnap = await getDocs(collection(db, 'users'));
     const aptsSnap = await getDocs(collection(db, 'appointments'));
     const messagesSnap = await getDocs(collection(db, 'contact'));
@@ -926,4 +968,399 @@ export const blogsAPI = {
   },
 };
 
+/** Collaborations API */
+/** Collaborations API */
+export const collaborationsAPI = {
+  getAll: async () => {
+    try {
+      const snap = await getDocs(collection(db, 'collaborations'));
+      const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      localStorage.setItem('local_collaborations', JSON.stringify(list));
+      return mockResponse({ collaborations: list });
+    } catch (e) {
+      console.warn("Firestore fetch collaborations failed, returning local storage fallback:", e);
+      const local = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+      return mockResponse({ collaborations: local });
+    }
+  },
+  getById: async (id) => {
+    try {
+      const docSnap = await getDoc(doc(db, 'collaborations', id));
+      if (docSnap.exists()) return mockResponse(docSnap.data());
+    } catch (e) {
+      console.warn("Firestore fetch collaboration by id failed, searching local storage:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+    const item = local.find(c => c._id === id);
+    if (!item) throw new Error('Collaboration not found.');
+    return mockResponse(item);
+  },
+  create: async (formData) => {
+    const parsed = await parseAndUploadFormData(formData, 'collaborations');
+    const _id = Math.random().toString(36).substring(2, 9);
+    const item = {
+      _id,
+      ...parsed,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await setDoc(doc(db, 'collaborations', _id), item);
+    } catch (e) {
+      console.warn("Firestore write collaboration failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+    local.push(item);
+    localStorage.setItem('local_collaborations', JSON.stringify(local));
+    return mockResponse(item);
+  },
+  update: async (id, formData) => {
+    const parsed = await parseAndUploadFormData(formData, 'collaborations');
+    const updates = {
+      ...parsed,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await updateDoc(doc(db, 'collaborations', id), updates);
+    } catch (e) {
+      console.warn("Firestore update collaboration failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+    const index = local.findIndex(c => c._id === id);
+    const existing = index !== -1 ? local[index] : { _id: id };
+    const updatedItem = { ...existing, ...updates };
+    if (index !== -1) {
+      local[index] = updatedItem;
+    } else {
+      local.push(updatedItem);
+    }
+    localStorage.setItem('local_collaborations', JSON.stringify(local));
+    return mockResponse(updatedItem);
+  },
+  delete: async (id) => {
+    try {
+      await deleteDoc(doc(db, 'collaborations', id));
+    } catch (e) {
+      console.warn("Firestore delete collaboration failed, removing from local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+    const filtered = local.filter(c => c._id !== id);
+    localStorage.setItem('local_collaborations', JSON.stringify(filtered));
+    return mockResponse({ success: true });
+  }
+};
+
+/** Campaigns/Events API */
+export const campaignsAPI = {
+  getAll: async () => {
+    try {
+      const snap = await getDocs(collection(db, 'campaigns'));
+      const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      localStorage.setItem('local_campaigns', JSON.stringify(list));
+      return mockResponse({ campaigns: list });
+    } catch (e) {
+      console.warn("Firestore fetch campaigns failed, returning local storage fallback:", e);
+      const local = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+      return mockResponse({ campaigns: local });
+    }
+  },
+  getById: async (id) => {
+    try {
+      const docSnap = await getDoc(doc(db, 'campaigns', id));
+      if (docSnap.exists()) return mockResponse(docSnap.data());
+    } catch (e) {
+      console.warn("Firestore fetch campaign by id failed, searching local storage:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+    const item = local.find(c => c._id === id);
+    if (!item) throw new Error('Campaign not found.');
+    return mockResponse(item);
+  },
+  create: async (data) => {
+    const _id = Math.random().toString(36).substring(2, 9);
+    const item = {
+      _id,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await setDoc(doc(db, 'campaigns', _id), item);
+    } catch (e) {
+      console.warn("Firestore write campaign failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+    local.push(item);
+    localStorage.setItem('local_campaigns', JSON.stringify(local));
+    return mockResponse(item);
+  },
+  update: async (id, data) => {
+    const updates = {
+      ...data,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await updateDoc(doc(db, 'campaigns', id), updates);
+    } catch (e) {
+      console.warn("Firestore update campaign failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+    const index = local.findIndex(c => c._id === id);
+    const existing = index !== -1 ? local[index] : { _id: id };
+    const updatedItem = { ...existing, ...updates };
+    if (index !== -1) {
+      local[index] = updatedItem;
+    } else {
+      local.push(updatedItem);
+    }
+    localStorage.setItem('local_campaigns', JSON.stringify(local));
+    return mockResponse(updatedItem);
+  },
+  delete: async (id) => {
+    try {
+      await deleteDoc(doc(db, 'campaigns', id));
+    } catch (e) {
+      console.warn("Firestore delete campaign failed, removing from local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+    const filtered = local.filter(c => c._id !== id);
+    localStorage.setItem('local_campaigns', JSON.stringify(filtered));
+    return mockResponse({ success: true });
+  }
+};
+
+/** Registrations API */
+import { notificationService } from '../services/notificationService';
+
+export const registrationsAPI = {
+  getAll: async () => {
+    await enforceAdmin();
+    try {
+      const snap = await getDocs(collection(db, 'registrations'));
+      const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+      list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      localStorage.setItem('local_registrations', JSON.stringify(list));
+      return mockResponse({ registrations: list });
+    } catch (e) {
+      console.warn("Firestore fetch registrations failed, returning local storage fallback:", e);
+      const local = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+      return mockResponse({ registrations: local });
+    }
+  },
+  create: async (data) => {
+    const year = new Date().getFullYear();
+    let count = 0;
+    try {
+      const snap = await getDocs(collection(db, 'registrations'));
+      count = snap.size;
+    } catch (e) {
+      const local = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+      count = local.length;
+    }
+    const nextNum = String(count + 1).padStart(6, '0');
+    const registrationId = `ZKR-${year}-${nextNum}`;
+
+    const _id = Math.random().toString(36).substring(2, 9);
+    const registration = {
+      _id,
+      registrationId,
+      ...data,
+      status: 'Registered',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      await setDoc(doc(db, 'registrations', _id), registration);
+    } catch (e) {
+      console.warn("Firestore write registration failed, saving to local storage fallback:", e);
+    }
+
+    const localRegs = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+    localRegs.push(registration);
+    localStorage.setItem('local_registrations', JSON.stringify(localRegs));
+
+    let venueName = 'Other / To be announced';
+    let campaignTitle = 'Free Assessment Camp';
+    let campaignDate = 'N/A';
+
+    try {
+      if (data.collaborationId) {
+        const collabDoc = await getDoc(doc(db, 'collaborations', data.collaborationId));
+        if (collabDoc.exists()) {
+          venueName = collabDoc.data().name;
+        } else {
+          const localCollabs = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+          const localCollab = localCollabs.find(c => c._id === data.collaborationId);
+          if (localCollab) venueName = localCollab.name;
+        }
+      }
+      if (data.eventId) {
+        const eventDoc = await getDoc(doc(db, 'campaigns', data.eventId));
+        if (eventDoc.exists()) {
+          campaignTitle = eventDoc.data().title;
+          campaignDate = eventDoc.data().date;
+        } else {
+          const localCamps = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+          const localCamp = localCamps.find(c => c._id === data.eventId);
+          if (localCamp) {
+            campaignTitle = localCamp.title;
+            campaignDate = localCamp.date;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Error fetching metadata for notification:', err);
+    }
+
+    notificationService.sendRegistrationNotification({
+      registrationId,
+      venueName,
+      campaignTitle,
+      campaignDate,
+      ...registration
+    }).catch(e => console.error('Failed to send registration notification:', e));
+
+    return mockResponse(registration);
+  },
+  updateStatus: async (id, status) => {
+    try {
+      await updateDoc(doc(db, 'registrations', id), { status, updatedAt: new Date().toISOString() });
+    } catch (e) {
+      console.warn("Firestore update registration status failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+    const index = local.findIndex(r => r._id === id);
+    if (index !== -1) {
+      local[index].status = status;
+      local[index].updatedAt = new Date().toISOString();
+      localStorage.setItem('local_registrations', JSON.stringify(local));
+      return mockResponse(local[index]);
+    }
+    return mockResponse({ _id: id, status, updatedAt: new Date().toISOString() });
+  },
+  delete: async (id) => {
+    try {
+      await deleteDoc(doc(db, 'registrations', id));
+    } catch (e) {
+      console.warn("Firestore delete registration failed, removing from local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+    const filtered = local.filter(r => r._id !== id);
+    localStorage.setItem('local_registrations', JSON.stringify(filtered));
+    return mockResponse({ success: true });
+  }
+};
+
+/** Collaboration Enquiries API */
+export const enquiriesAPI = {
+  getAll: async () => {
+    await enforceAdmin();
+    try {
+      const snap = await getDocs(collection(db, 'collaboration_enquiries'));
+      const list = snap.docs.map(doc => doc.data());
+      list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      localStorage.setItem('local_enquiries', JSON.stringify(list));
+      return mockResponse({ enquiries: list });
+    } catch (e) {
+      console.warn("Firestore fetch enquiries failed, returning local storage fallback:", e);
+      const local = JSON.parse(localStorage.getItem('local_enquiries') || '[]');
+      return mockResponse({ enquiries: local });
+    }
+  },
+  create: async (data) => {
+    const _id = Math.random().toString(36).substring(2, 9);
+    const enquiry = {
+      _id,
+      ...data,
+      createdAt: new Date().toISOString()
+    };
+    try {
+      await setDoc(doc(db, 'collaboration_enquiries', _id), enquiry);
+    } catch (e) {
+      console.warn("Firestore write enquiry failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_enquiries') || '[]');
+    local.push(enquiry);
+    localStorage.setItem('local_enquiries', JSON.stringify(local));
+    return mockResponse(enquiry);
+  }
+};
+
+/** Analytics API */
+export const analyticsAPI = {
+  logEvent: async (data) => {
+    const _id = Math.random().toString(36).substring(2, 9);
+    const event = {
+      _id,
+      ...data,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      await setDoc(doc(db, 'analytics_events', _id), event);
+    } catch (e) {
+      console.warn("Firestore write analytics event failed, saving to local storage fallback:", e);
+    }
+    const local = JSON.parse(localStorage.getItem('local_analytics_events') || '[]');
+    local.push(event);
+    localStorage.setItem('local_analytics_events', JSON.stringify(local));
+    return mockResponse(event);
+  },
+  
+  getMetrics: async () => {
+    await enforceAdmin();
+    
+    // Fetch website analytics events
+    let events = [];
+    try {
+      const snap = await getDocs(collection(db, 'analytics_events'));
+      events = snap.docs.map(doc => doc.data());
+    } catch (e) {
+      console.warn("Firestore fetch analytics events failed, loading local fallback:", e);
+      events = JSON.parse(localStorage.getItem('local_analytics_events') || '[]');
+    }
+
+    // Fetch primary business database collections
+    let registrations = [];
+    let appointments = [];
+    let enquiries = [];
+    let collaborations = [];
+    let campaignsList = [];
+
+    try {
+      const [regSnap, aptSnap, enqSnap, colSnap, campSnap] = await Promise.all([
+        getDocs(collection(db, 'registrations')),
+        getDocs(collection(db, 'appointments')),
+        getDocs(collection(db, 'collaboration_enquiries')),
+        getDocs(collection(db, 'collaborations')),
+        getDocs(collection(db, 'campaigns'))
+      ]);
+      
+      registrations = regSnap.docs.map(d => d.data());
+      appointments = aptSnap.docs.map(d => d.data());
+      enquiries = enqSnap.docs.map(d => d.data());
+      collaborations = colSnap.docs.map(d => ({ _id: d.id, ...d.data() }));
+      campaignsList = campSnap.docs.map(d => d.data());
+    } catch (e) {
+      console.warn("Firestore fetch business tables failed, loading local fallback:", e);
+      registrations = JSON.parse(localStorage.getItem('local_registrations') || '[]');
+      appointments = JSON.parse(localStorage.getItem('local_appointments') || '[]');
+      enquiries = JSON.parse(localStorage.getItem('local_enquiries') || '[]');
+      collaborations = JSON.parse(localStorage.getItem('local_collaborations') || '[]');
+      campaignsList = JSON.parse(localStorage.getItem('local_campaigns') || '[]');
+    }
+
+    return mockResponse({
+      success: true,
+      events,
+      registrations,
+      appointments,
+      enquiries,
+      collaborations,
+      campaigns: campaignsList
+    });
+  }
+};
+
 export default authAPI;
+

@@ -17,15 +17,25 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+    const handleHashAndScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+      
+      const hash = window.location.hash;
+      if (hash) {
+        setActiveSection(hash.replace('#', ''));
+      } else if (window.scrollY < 100) {
+        setActiveSection('home');
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    handleHashAndScroll();
+    window.addEventListener('scroll', handleHashAndScroll);
+    window.addEventListener('hashchange', handleHashAndScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleHashAndScroll);
+      window.removeEventListener('hashchange', handleHashAndScroll);
+    };
   }, []);
 
   const navItems = [
@@ -35,9 +45,9 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
     { label: 'Our Team', href: '#experts' },
     { label: 'Founder', href: '#founder' },
     { label: 'Reviews', href: '#testimonials' },
-    { label: 'Gallery', href: '#gallery' },
     { label: 'Contact', href: '#contact' },
     { label: 'Blog', href: '#blog' },
+    { label: 'Collaborations', href: '#collaborations' },
   ];
 
   const handleNavClick = (href: string) => {
@@ -47,7 +57,8 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
       return;
     }
     
-    if (['#blog', '#founder', '#testimonials', '#admin'].includes(href)) {
+    if (['#blog', '#founder', '#testimonials', '#admin', '#collaborations', '#assessment'].includes(href)) {
+      setActiveSection(href.replace('#', ''));
       window.location.hash = href;
       return;
     }
@@ -69,13 +80,13 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
 
   return (
     <header className={`fixed left-0 right-0 z-[1000] px-3 sm:px-6 transition-all duration-300 pointer-events-none ${
-      hasActiveOffer ? 'top-8 sm:top-10' : 'top-0 pt-3 sm:pt-4'
+      hasActiveOffer ? 'top-11 sm:top-12' : 'top-0 pt-3 sm:pt-4'
     }`}>
       <motion.nav
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className={`mx-auto max-w-7xl rounded-2xl sm:rounded-3xl pointer-events-auto transition-all duration-300 ${
+        className={`mx-auto max-w-[1360px] rounded-2xl sm:rounded-3xl pointer-events-auto transition-all duration-300 ${
           isScrolled
             ? 'bg-slate-950/90 backdrop-blur-2xl border border-cyan-500/30 shadow-[0_12px_40px_rgba(0,0,0,0.6)] py-2.5 px-4 sm:px-6 lg:px-8'
             : 'bg-slate-950/80 backdrop-blur-xl border border-white/15 py-3 px-4 sm:px-6 lg:px-8 shadow-2xl'
@@ -108,7 +119,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
           </a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-full border border-cyan-500/20 shadow-inner shrink-0">
+          <div className="hidden xl:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-full border border-cyan-500/20 shadow-inner shrink-0">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
               return (
@@ -119,7 +130,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
                     e.preventDefault();
                     handleNavClick(item.href);
                   }}
-                  className={`relative px-3 py-1.5 text-xs font-extrabold rounded-full whitespace-nowrap transition-all duration-300 ${
+                  className={`relative px-2 py-1.5 text-xs font-extrabold rounded-full whitespace-nowrap transition-all duration-300 ${
                     isActive ? 'text-slate-950 font-black' : 'text-slate-200 hover:text-white'
                   }`}
                 >
@@ -156,14 +167,14 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
                 e.preventDefault();
                 window.location.hash = '#admin';
               }}
-              className={`hidden md:flex items-center gap-1.5 px-2.5 py-2 rounded-xl border text-xs font-bold transition-all shrink-0 ${
+              className={`flex items-center justify-center p-2 rounded-xl border transition-all shrink-0 ${
                 isAdmin
                   ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/30'
                   : 'bg-white/5 border-white/10 text-slate-300 hover:border-cyan-400/40 hover:text-cyan-300'
               }`}
+              title="Admin Panel"
             >
-              <Shield size={13} className={isAdmin ? 'text-emerald-400' : 'text-cyan-400'} />
-              <span>{isAdmin ? 'Admin' : 'Admin'}</span>
+              <Shield size={14} className={isAdmin ? 'text-emerald-400' : 'text-cyan-400'} />
             </a>
 
             {/* Book Appointment CTA */}
@@ -179,7 +190,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             {/* Mobile / Tablet Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-white/10 border border-white/10 text-slate-200 hover:text-white shrink-0"
+              className="xl:hidden p-2 rounded-xl bg-white/10 border border-white/10 text-slate-200 hover:text-white shrink-0"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -196,7 +207,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="lg:hidden pointer-events-auto mt-2 mx-auto max-w-7xl rounded-2xl bg-slate-950/95 backdrop-blur-2xl border border-cyan-500/30 p-5 shadow-2xl space-y-4"
+            className="xl:hidden pointer-events-auto mt-2 mx-auto max-w-7xl rounded-2xl bg-slate-950/95 backdrop-blur-2xl border border-cyan-500/30 p-5 shadow-2xl space-y-4"
           >
             <div className="grid grid-cols-2 gap-2">
               {navItems.map((item) => (
@@ -235,6 +246,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
                 <Shield size={16} />
                 <span>{isAdmin ? 'Access Admin Panel' : 'Admin Login'}</span>
               </a>
+
 
               <div className="flex items-center justify-center gap-2 text-xs text-slate-400 font-semibold">
                 <MapPin size={14} className="text-cyan-400" />

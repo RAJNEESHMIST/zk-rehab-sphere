@@ -80,7 +80,20 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setAppointments(ap);
       setReviews(rv);
       setGallery(gl);
-      setOffers(ofs);
+      
+      let finalOffers = ofs;
+      if (!ofs || ofs.filter(o => o.isActive).length === 0) {
+        const demoOffer = {
+          id: 'demo-active-offer',
+          title: 'Special Offer: Get 15 Min Free On-Call Consultation',
+          description: 'Speak with our senior physiotherapy specialist today for a free diagnostic assessment.',
+          isActive: true,
+          createdAt: new Date().toISOString()
+        };
+        dbService.saveOffer(demoOffer).catch(e => console.warn('Auto-seed offer failed:', e));
+        finalOffers = [demoOffer, ...(ofs || [])];
+      }
+      setOffers(finalOffers);
     } catch (err) {
       console.error('Error loading SiteData from IndexedDB:', err);
     } finally {

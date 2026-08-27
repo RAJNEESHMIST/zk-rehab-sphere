@@ -180,11 +180,11 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({ onOpenBooking }) => {
             {/* Book Appointment CTA */}
             <button
               onClick={onOpenBooking}
-              className="relative inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-300 hover:from-cyan-300 hover:to-teal-200 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95 shrink-0"
+              className="relative inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 rounded-xl text-xs font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-teal-300 hover:from-cyan-300 hover:to-teal-200 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95 shrink-0"
             >
-              <Calendar size={15} className="stroke-[2.5]" />
-              <span className="hidden sm:inline whitespace-nowrap">Book Visit</span>
-              <span className="sm:hidden">Book</span>
+              <Calendar size={14} className="stroke-[2.5]" />
+              <span className="hidden md:inline whitespace-nowrap">Book Visit</span>
+              <span className="hidden sm:inline md:hidden">Book</span>
             </button>
 
             {/* Mobile / Tablet Hamburger Toggle */}

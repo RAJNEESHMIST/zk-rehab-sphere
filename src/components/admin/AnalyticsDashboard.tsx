@@ -7,6 +7,9 @@ import {
 } from 'lucide-react';
 // @ts-ignore
 import { analyticsAPI } from '../../api/axios';
+// @ts-ignore
+import { db } from '../../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface MetricData {
   events: any[];
@@ -57,6 +60,37 @@ export const AnalyticsDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchMetrics();
+
+    const unsubscribes: (() => void)[] = [];
+    if (db) {
+      try {
+        const listenCollection = (colName: string, stateKey: keyof MetricData) => {
+          const unsub = onSnapshot(collection(db, colName), (snap) => {
+            const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+            setMetrics(prev => ({
+              ...prev,
+              [stateKey]: list
+            }));
+          }, (err) => {
+            console.warn(`Firestore live updates failed for ${colName}:`, err);
+          });
+          unsubscribes.push(unsub);
+        };
+
+        listenCollection('analytics_events', 'events');
+        listenCollection('registrations', 'registrations');
+        listenCollection('appointments', 'appointments');
+        listenCollection('collaboration_enquiries', 'enquiries');
+        listenCollection('collaborations', 'collaborations');
+        listenCollection('campaigns', 'campaigns');
+      } catch (e) {
+        console.warn('Real-time collection listeners initialization failed:', e);
+      }
+    }
+
+    return () => {
+      unsubscribes.forEach(unsub => unsub());
+    };
   }, []);
 
   if (error) {
@@ -459,6 +493,13 @@ export const AnalyticsDashboard: React.FC = () => {
 
   const activeInsights = generateInsights();
 
+  const getLiveVisitorsCount = () => {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const liveEvents = metrics.events.filter(e => new Date(e.timestamp) >= fiveMinutesAgo);
+    return new Set(liveEvents.map(e => e.visitorId)).size;
+  };
+  const liveVisitors = getLiveVisitorsCount();
+
   // Print view handler
   const handlePrint = () => {
     window.print();
@@ -473,10 +514,16 @@ export const AnalyticsDashboard: React.FC = () => {
           <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">
             Internal Operations
           </span>
-          <h2 className="text-2xl font-black tracking-tight text-white print:text-slate-950">
-            Analytics & Insights
-          </h2>
-          <p className="text-slate-400 text-xs mt-0.5 print:hidden">
+          <div className="flex flex-wrap items-center gap-3 mt-1.5">
+            <h2 className="text-2xl font-black tracking-tight text-white print:text-slate-950">
+              Analytics & Insights
+            </h2>
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider animate-pulse print:hidden">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>LIVE NOW: {liveVisitors} ACTIVE</span>
+            </div>
+          </div>
+          <p className="text-slate-400 text-xs mt-1.5 print:hidden">
             Understand how visitors discover ZK RehabSphere, what they explore, and which activities generate leads.
           </p>
         </div>

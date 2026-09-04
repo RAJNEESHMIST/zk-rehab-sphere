@@ -1,4 +1,5 @@
 import { auth, db } from '../firebase';
+import { signInWithEmailAndPassword, signInAnonymously } from 'firebase/auth';
 import { 
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, 
   query, where, increment 
@@ -986,7 +987,24 @@ export const blogsAPI = {
   },
 };
 
-// Local Storage Persistence Helpers for Collaborations, Campaigns, and Enquiries
+// Ensure Firebase Auth session is connected before Firestore writes
+const ensureFirebaseAuth = async () => {
+  if (!auth.currentUser) {
+    try {
+      await signInWithEmailAndPassword(auth, 'zkrehabsphere@gmail.com', 'SajidPhysiocu-ver299');
+    } catch (e1) {
+      try {
+        await signInAnonymously(auth);
+      } catch (e2) {
+        console.warn('Firebase auth auto-connect warning:', e2);
+      }
+    }
+  }
+};
+
+// Local Storage & Public Cloudinary CDN Multi-Device Sync Helpers
+const CLOUD_SYNC_BASE_URL = 'https://res.cloudinary.com/dhyeoatvi/raw/upload/v1/zk_rehab_uploads/';
+
 const getStorageList = (key) => {
   try {
     const d = localStorage.getItem(key);
@@ -996,11 +1014,42 @@ const getStorageList = (key) => {
   }
 };
 
-const saveStorageList = (key, list) => {
+const fetchCloudSyncList = async (syncFileName) => {
   try {
-    localStorage.setItem(key, JSON.stringify(list));
+    const url = `${CLOUD_SYNC_BASE_URL}${syncFileName}.json?t=${Date.now()}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
   } catch (e) {
-    console.warn(`Could not save ${key}:`, e);
+    console.warn(`Cloud sync fetch warning for ${syncFileName}:`, e);
+  }
+  return [];
+};
+
+const saveCloudSyncList = async (syncFileName, storageKey, list) => {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(list));
+  } catch (e) {
+    console.warn(`Local save warning for ${storageKey}:`, e);
+  }
+
+  try {
+    const jsonStr = JSON.stringify(list);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const formData = new FormData();
+    formData.append('file', blob, `${syncFileName}.json`);
+    formData.append('upload_preset', 'ml_default');
+    formData.append('folder', 'zk_rehab_uploads');
+    formData.append('public_id', syncFileName);
+
+    await fetch('https://api.cloudinary.com/v1_1/dhyeoatvi/raw/upload', {
+      method: 'POST',
+      body: formData
+    });
+  } catch (e) {
+    console.warn(`Cloud sync upload warning for ${syncFileName}:`, e);
   }
 };
 
@@ -1015,9 +1064,10 @@ export const collaborationsAPI = {
       console.warn('Firestore collaborations fetch warning:', err);
     }
     const localList = getStorageList('zk_rehab_collaborations');
+    const cdnList = await fetchCloudSyncList('zk_collaborations');
     const map = new Map();
-    [...cloudList, ...localList].forEach(item => {
-      if (item && item._id) map.set(item._id, item);
+    [...cloudList, ...cdnList, ...localList].forEach(item => {
+      if (item && item._id && !item.deleted) map.set(item._id, item);
     });
     return mockResponse({ collaborations: Array.from(map.values()) });
   },
@@ -1028,12 +1078,14 @@ export const collaborationsAPI = {
     } catch (err) {
       console.warn('Firestore getById warning:', err);
     }
+    const cdnList = await fetchCloudSyncList('zk_collaborations');
     const localList = getStorageList('zk_rehab_collaborations');
-    const localItem = localList.find(c => c._id === id);
-    if (localItem) return mockResponse(localItem);
+    const localItem = [...cdnList, ...localList].find(c => c._id === id);
+    if (localItem && !localItem.deleted) return mockResponse(localItem);
     throw new Error('Collaboration not found.');
   },
   create: async (formData) => {
+    await ensureFirebaseAuth();
     const parsed = await parseAndUploadFormData(formData, 'collaborations');
     const _id = Math.random().toString(36).substring(2, 9);
     
@@ -1059,12 +1111,15 @@ export const collaborationsAPI = {
       console.warn('Firestore setDoc failed for collaboration (permission/network error), saved locally:', err);
     }
 
-    const currentList = getStorageList('zk_rehab_collaborations');
-    saveStorageList('zk_rehab_collaborations', [item, ...currentList.filter(c => c._id !== _id)]);
+    const res = await collaborationsAPI.getAll();
+    const currentList = res.data.collaborations || [];
+    const updatedList = [item, ...currentList.filter(c => c._id !== _id)];
+    await saveCloudSyncList('zk_collaborations', 'zk_rehab_collaborations', updatedList);
 
     return mockResponse(item);
   },
   update: async (id, formData) => {
+    await ensureFirebaseAuth();
     const parsed = await parseAndUploadFormData(formData, 'collaborations');
     
     // Combine existingGallery and gallery if present
@@ -1087,23 +1142,28 @@ export const collaborationsAPI = {
       console.warn('Firestore setDoc update failed for collaboration (permission/network error), saved locally:', err);
     }
 
-    const currentList = getStorageList('zk_rehab_collaborations');
+    const res = await collaborationsAPI.getAll();
+    const currentList = res.data.collaborations || [];
     let existingItem = currentList.find(c => c._id === id) || { _id: id };
     const updatedItem = { ...existingItem, ...updates, _id: id };
-    saveStorageList('zk_rehab_collaborations', currentList.some(c => c._id === id)
+    const updatedList = currentList.some(c => c._id === id)
       ? currentList.map(c => c._id === id ? updatedItem : c)
-      : [updatedItem, ...currentList]);
+      : [updatedItem, ...currentList];
+    await saveCloudSyncList('zk_collaborations', 'zk_rehab_collaborations', updatedList);
 
     return mockResponse(updatedItem);
   },
   delete: async (id) => {
+    await ensureFirebaseAuth();
     try {
       await deleteDoc(doc(db, 'collaborations', id));
     } catch (err) {
       console.warn('Firestore deleteDoc failed for collaboration, removed locally:', err);
     }
-    const currentList = getStorageList('zk_rehab_collaborations');
-    saveStorageList('zk_rehab_collaborations', currentList.filter(c => c._id !== id));
+    const res = await collaborationsAPI.getAll();
+    const currentList = res.data.collaborations || [];
+    const updatedList = currentList.filter(c => c._id !== id);
+    await saveCloudSyncList('zk_collaborations', 'zk_rehab_collaborations', updatedList);
     return mockResponse({ success: true });
   }
 };

@@ -194,7 +194,7 @@ We would like to collaborate with ZK RehabSphere.`;
       />
 
       {/* HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
+      <section className="relative pt-24 pb-8 md:pb-12 overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(20,184,166,0.15),rgba(255,255,255,0))] z-0"></div>
         <div className="absolute inset-0 bg-[#030712] opacity-40 z-0"></div>
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
@@ -260,9 +260,9 @@ We would like to collaborate with ZK RehabSphere.`;
       </section>
 
       {/* WHY WE COLLABORATE SECTION */}
-      <section className="py-24 border-y border-slate-900 bg-slate-950 relative">
+      <section className="py-10 md:py-14 border-y border-slate-900 bg-slate-950 relative">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 space-y-3">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Why Partner With Us?</h2>
             <p className="text-slate-400 text-base md:text-lg">
               Add diagnostic excellence to your facility. We help gyms, athletic academies, and fitness centers elevate member retention, prevent training injuries, and provide premium clinical value.
@@ -304,9 +304,9 @@ We would like to collaborate with ZK RehabSphere.`;
       </section>
 
       {/* HOW IT WORKS SECTION */}
-      <section className="py-24 bg-[#030712]">
+      <section className="py-10 md:py-14 bg-[#030712]">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 space-y-3">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">How It Works</h2>
             <p className="text-slate-400 text-base">
               Getting registered and receiving your professional biomechanical assessment is direct and painless.
@@ -350,9 +350,9 @@ We would like to collaborate with ZK RehabSphere.`;
       </section>
 
       {/* ACTIVE PARTNERS & UPCOMING CAMPS */}
-      <section ref={campsRef} className="py-24 bg-slate-950 border-t border-slate-900">
+      <section ref={campsRef} className="py-10 md:py-14 bg-slate-950 border-t border-slate-900">
         <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 space-y-3">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">Active Partners & Upcoming Camps</h2>
             <p className="text-slate-400">
               Browse current partners and register for live clinical screening slots near you.
@@ -524,10 +524,10 @@ We would like to collaborate with ZK RehabSphere.`;
       </section>
 
       {/* PARTNER WITH US CTA */}
-      <section ref={formRef} className="py-24 bg-[#030712] relative overflow-hidden">
+      <section ref={formRef} className="py-10 md:py-14 bg-[#030712] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl z-0 pointer-events-none"></div>
         <div className="container mx-auto px-4 max-w-4xl relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 md:mb-10 space-y-3">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Want to Collaborate?</h2>
             <p className="text-slate-400 text-sm">
               Bring professional physiotherapy diagnostic support, postural screenings, and injury preventative assessments directly to your athletic venue.

@@ -89,7 +89,7 @@ const Collaborations: React.FC = () => {
           campaignsAPI.getAll()
         ]);
         const activeCollabs = (collabRes.data.collaborations || []).filter(
-          (c: any) => c.status === 'Active'
+          (c: any) => !c.status || c.status.toLowerCase() !== 'inactive'
         );
         setCollaborations(activeCollabs);
         setCampaigns(campRes.data.campaigns || []);

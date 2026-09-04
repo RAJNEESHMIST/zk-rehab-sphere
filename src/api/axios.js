@@ -986,6 +986,81 @@ export const blogsAPI = {
   },
 };
 
+// Default Public Collaborations Seed Data
+const SEED_COLLABORATIONS = [
+  {
+    _id: 'collab_1',
+    name: 'The Platinum Fitness Club',
+    type: 'Gym',
+    description: 'Premier fitness & athletic training facility in Sector 35 Chandigarh. Partnering with ZK RehabSphere for member posture assessments, injury prevention screenings, and clinical recovery support.',
+    address: 'SCO 142-143, Sector 35-C',
+    city: 'Chandigarh',
+    state: 'Chandigarh',
+    contactPerson: 'Rahul Sharma',
+    contactNumber: '+91 9876543210',
+    email: 'contact@platinumfitness.in',
+    website: 'https://platinumfitness.in',
+    instagram: '',
+    facebook: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
+    status: 'Active',
+    servicesOffered: [
+      'Free Physiotherapy Assessment',
+      'Posture Assessment',
+      'Sports Injury Screening',
+      'Injury Prevention'
+    ]
+  },
+  {
+    _id: 'collab_2',
+    name: 'Tricity Athletics Academy',
+    type: 'Sports Academy',
+    description: 'Leading sports and youth athletics training center in Mohali. Conducting regular biomechanical movement analysis and injury screening camps with senior clinical physiotherapists.',
+    address: 'Phase 7, Industrial Area',
+    city: 'Mohali',
+    state: 'Punjab',
+    contactPerson: 'Gurpreet Singh',
+    contactNumber: '+91 9812345678',
+    email: 'info@tricityathletics.com',
+    website: '',
+    instagram: '',
+    facebook: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
+    status: 'Active',
+    servicesOffered: [
+      'Movement Assessment',
+      'Sports Performance',
+      'Recovery Program',
+      'Awareness Camp'
+    ]
+  },
+  {
+    _id: 'collab_3',
+    name: 'Gold’s Gym & Wellness Hub',
+    type: 'Fitness Center',
+    description: 'State-of-the-art strength and cardio center in Kharar. Offering free on-site physical therapy consultations and joint mobility workshops for all registered members.',
+    address: 'Landran Road, Sector 125',
+    city: 'Kharar',
+    state: 'Punjab',
+    contactPerson: 'Manpreet Kaur',
+    contactNumber: '+91 9779123456',
+    email: 'kharar@goldsgym.in',
+    website: '',
+    instagram: '',
+    facebook: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
+    status: 'Active',
+    servicesOffered: [
+      'Physiotherapy Consultation',
+      'Free Physiotherapy Assessment',
+      'Workshop'
+    ]
+  }
+];
+
 // Local Storage Persistence Helpers for Collaborations, Campaigns, and Enquiries
 const getStorageList = (key) => {
   try {
@@ -1016,7 +1091,7 @@ export const collaborationsAPI = {
     }
     const localList = getStorageList('zk_rehab_collaborations');
     const map = new Map();
-    [...cloudList, ...localList].forEach(item => {
+    [...SEED_COLLABORATIONS, ...cloudList, ...localList].forEach(item => {
       if (item && item._id) map.set(item._id, item);
     });
     return mockResponse({ collaborations: Array.from(map.values()) });

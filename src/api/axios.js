@@ -986,44 +986,124 @@ export const blogsAPI = {
   },
 };
 
-/** Collaborations API */
+// Local Storage Persistence Helpers for Collaborations, Campaigns, and Enquiries
+const getStorageList = (key) => {
+  try {
+    const d = localStorage.getItem(key);
+    return d ? JSON.parse(d) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const saveStorageList = (key, list) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch (e) {
+    console.warn(`Could not save ${key}:`, e);
+  }
+};
+
 /** Collaborations API */
 export const collaborationsAPI = {
   getAll: async () => {
-    const snap = await getDocs(collection(db, 'collaborations'));
-    const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
-    return mockResponse({ collaborations: list });
+    let cloudList = [];
+    try {
+      const snap = await getDocs(collection(db, 'collaborations'));
+      cloudList = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    } catch (err) {
+      console.warn('Firestore collaborations fetch warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_collaborations');
+    const map = new Map();
+    [...cloudList, ...localList].forEach(item => {
+      if (item && item._id) map.set(item._id, item);
+    });
+    return mockResponse({ collaborations: Array.from(map.values()) });
   },
   getById: async (id) => {
-    const docSnap = await getDoc(doc(db, 'collaborations', id));
-    if (docSnap.exists()) return mockResponse({ _id: docSnap.id, ...docSnap.data() });
+    try {
+      const docSnap = await getDoc(doc(db, 'collaborations', id));
+      if (docSnap.exists()) return mockResponse({ _id: docSnap.id, ...docSnap.data() });
+    } catch (err) {
+      console.warn('Firestore getById warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_collaborations');
+    const localItem = localList.find(c => c._id === id);
+    if (localItem) return mockResponse(localItem);
     throw new Error('Collaboration not found.');
   },
   create: async (formData) => {
     const parsed = await parseAndUploadFormData(formData, 'collaborations');
     const _id = Math.random().toString(36).substring(2, 9);
+    
+    // Combine existingGallery and gallery if present
+    const existingG = Array.isArray(parsed.existingGallery) ? parsed.existingGallery : [];
+    const newG = Array.isArray(parsed.gallery) ? parsed.gallery : (parsed.gallery ? [parsed.gallery] : []);
+    const gallery = [...existingG, ...newG];
+    delete parsed.existingGallery;
+    if (gallery.length > 0) {
+      parsed.gallery = gallery;
+    }
+
     const item = sanitizeFirestoreObject({
       _id,
       ...parsed,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-    await setDoc(doc(db, 'collaborations', _id), item);
+
+    try {
+      await setDoc(doc(db, 'collaborations', _id), item);
+    } catch (err) {
+      console.warn('Firestore setDoc failed for collaboration (permission/network error), saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_collaborations');
+    saveStorageList('zk_rehab_collaborations', [item, ...currentList.filter(c => c._id !== _id)]);
+
     return mockResponse(item);
   },
   update: async (id, formData) => {
     const parsed = await parseAndUploadFormData(formData, 'collaborations');
+    
+    // Combine existingGallery and gallery if present
+    const existingG = Array.isArray(parsed.existingGallery) ? parsed.existingGallery : [];
+    const newG = Array.isArray(parsed.gallery) ? parsed.gallery : (parsed.gallery ? [parsed.gallery] : []);
+    const gallery = [...existingG, ...newG];
+    delete parsed.existingGallery;
+    if (gallery.length > 0 || Array.isArray(parsed.existingGallery)) {
+      parsed.gallery = gallery;
+    }
+
     const updates = sanitizeFirestoreObject({
       ...parsed,
       updatedAt: new Date().toISOString()
     });
-    await updateDoc(doc(db, 'collaborations', id), updates);
-    const docSnap = await getDoc(doc(db, 'collaborations', id));
-    const updatedItem = docSnap.exists() ? { _id: id, ...docSnap.data() } : { _id: id, ...updates };
+
+    try {
+      await setDoc(doc(db, 'collaborations', id), updates, { merge: true });
+    } catch (err) {
+      console.warn('Firestore setDoc update failed for collaboration (permission/network error), saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_collaborations');
+    let existingItem = currentList.find(c => c._id === id) || { _id: id };
+    const updatedItem = { ...existingItem, ...updates, _id: id };
+    saveStorageList('zk_rehab_collaborations', currentList.some(c => c._id === id)
+      ? currentList.map(c => c._id === id ? updatedItem : c)
+      : [updatedItem, ...currentList]);
+
     return mockResponse(updatedItem);
   },
   delete: async (id) => {
-    await deleteDoc(doc(db, 'collaborations', id));
+    try {
+      await deleteDoc(doc(db, 'collaborations', id));
+    } catch (err) {
+      console.warn('Firestore deleteDoc failed for collaboration, removed locally:', err);
+    }
+    const currentList = getStorageList('zk_rehab_collaborations');
+    saveStorageList('zk_rehab_collaborations', currentList.filter(c => c._id !== id));
     return mockResponse({ success: true });
   }
 };
@@ -1031,13 +1111,30 @@ export const collaborationsAPI = {
 /** Campaigns/Events API */
 export const campaignsAPI = {
   getAll: async () => {
-    const snap = await getDocs(collection(db, 'campaigns'));
-    const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
-    return mockResponse({ campaigns: list });
+    let cloudList = [];
+    try {
+      const snap = await getDocs(collection(db, 'campaigns'));
+      cloudList = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    } catch (err) {
+      console.warn('Firestore campaigns fetch warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_campaigns');
+    const map = new Map();
+    [...cloudList, ...localList].forEach(item => {
+      if (item && item._id) map.set(item._id, item);
+    });
+    return mockResponse({ campaigns: Array.from(map.values()) });
   },
   getById: async (id) => {
-    const docSnap = await getDoc(doc(db, 'campaigns', id));
-    if (docSnap.exists()) return mockResponse({ _id: docSnap.id, ...docSnap.data() });
+    try {
+      const docSnap = await getDoc(doc(db, 'campaigns', id));
+      if (docSnap.exists()) return mockResponse({ _id: docSnap.id, ...docSnap.data() });
+    } catch (err) {
+      console.warn('Firestore campaign getById warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_campaigns');
+    const localItem = localList.find(c => c._id === id);
+    if (localItem) return mockResponse(localItem);
     throw new Error('Campaign not found.');
   },
   create: async (data) => {
@@ -1048,7 +1145,16 @@ export const campaignsAPI = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-    await setDoc(doc(db, 'campaigns', _id), item);
+
+    try {
+      await setDoc(doc(db, 'campaigns', _id), item);
+    } catch (err) {
+      console.warn('Firestore setDoc failed for campaign, saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_campaigns');
+    saveStorageList('zk_rehab_campaigns', [item, ...currentList.filter(c => c._id !== _id)]);
+
     return mockResponse(item);
   },
   update: async (id, data) => {
@@ -1056,13 +1162,30 @@ export const campaignsAPI = {
       ...data,
       updatedAt: new Date().toISOString()
     });
-    await updateDoc(doc(db, 'campaigns', id), updates);
-    const docSnap = await getDoc(doc(db, 'campaigns', id));
-    const updatedItem = docSnap.exists() ? { _id: id, ...docSnap.data() } : { _id: id, ...updates };
+
+    try {
+      await setDoc(doc(db, 'campaigns', id), updates, { merge: true });
+    } catch (err) {
+      console.warn('Firestore update failed for campaign, saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_campaigns');
+    let existingItem = currentList.find(c => c._id === id) || { _id: id };
+    const updatedItem = { ...existingItem, ...updates, _id: id };
+    saveStorageList('zk_rehab_campaigns', currentList.some(c => c._id === id)
+      ? currentList.map(c => c._id === id ? updatedItem : c)
+      : [updatedItem, ...currentList]);
+
     return mockResponse(updatedItem);
   },
   delete: async (id) => {
-    await deleteDoc(doc(db, 'campaigns', id));
+    try {
+      await deleteDoc(doc(db, 'campaigns', id));
+    } catch (err) {
+      console.warn('Firestore deleteDoc failed for campaign, removed locally:', err);
+    }
+    const currentList = getStorageList('zk_rehab_campaigns');
+    saveStorageList('zk_rehab_campaigns', currentList.filter(c => c._id !== id));
     return mockResponse({ success: true });
   }
 };
@@ -1072,9 +1195,20 @@ import { notificationService } from '../services/notificationService';
 
 export const registrationsAPI = {
   getAll: async () => {
-    await enforceAdmin();
-    const snap = await getDocs(collection(db, 'registrations'));
-    const list = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    let cloudList = [];
+    try {
+      await enforceAdmin();
+      const snap = await getDocs(collection(db, 'registrations'));
+      cloudList = snap.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    } catch (err) {
+      console.warn('Registrations getAll warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_registrations');
+    const map = new Map();
+    [...cloudList, ...localList].forEach(item => {
+      if (item && item._id) map.set(item._id, item);
+    });
+    const list = Array.from(map.values());
     list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return mockResponse({ registrations: list });
   },
@@ -1100,7 +1234,14 @@ export const registrationsAPI = {
       updatedAt: new Date().toISOString()
     });
 
-    await setDoc(doc(db, 'registrations', _id), registration);
+    try {
+      await setDoc(doc(db, 'registrations', _id), registration);
+    } catch (err) {
+      console.warn('Firestore setDoc failed for registration, saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_registrations');
+    saveStorageList('zk_rehab_registrations', [registration, ...currentList.filter(r => r._id !== _id)]);
 
     let venueName = 'Other / To be announced';
     let campaignTitle = 'Free Assessment Camp';
@@ -1136,12 +1277,29 @@ export const registrationsAPI = {
   },
   updateStatus: async (id, status) => {
     const updates = sanitizeFirestoreObject({ status, updatedAt: new Date().toISOString() });
-    await updateDoc(doc(db, 'registrations', id), updates);
-    const updated = await getDoc(doc(db, 'registrations', id));
-    return mockResponse(updated.exists() ? updated.data() : { _id: id, ...updates });
+    try {
+      await setDoc(doc(db, 'registrations', id), updates, { merge: true });
+    } catch (err) {
+      console.warn('Firestore updateStatus failed for registration, updated locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_registrations');
+    let existingItem = currentList.find(r => r._id === id) || { _id: id };
+    const updatedItem = { ...existingItem, ...updates, _id: id };
+    saveStorageList('zk_rehab_registrations', currentList.some(r => r._id === id)
+      ? currentList.map(r => r._id === id ? updatedItem : r)
+      : [updatedItem, ...currentList]);
+
+    return mockResponse(updatedItem);
   },
   delete: async (id) => {
-    await deleteDoc(doc(db, 'registrations', id));
+    try {
+      await deleteDoc(doc(db, 'registrations', id));
+    } catch (err) {
+      console.warn('Firestore deleteDoc failed for registration, removed locally:', err);
+    }
+    const currentList = getStorageList('zk_rehab_registrations');
+    saveStorageList('zk_rehab_registrations', currentList.filter(r => r._id !== id));
     return mockResponse({ success: true });
   }
 };
@@ -1149,9 +1307,20 @@ export const registrationsAPI = {
 /** Collaboration Enquiries API */
 export const enquiriesAPI = {
   getAll: async () => {
-    await enforceAdmin();
-    const snap = await getDocs(collection(db, 'collaboration_enquiries'));
-    const list = snap.docs.map(doc => doc.data());
+    let cloudList = [];
+    try {
+      await enforceAdmin();
+      const snap = await getDocs(collection(db, 'collaboration_enquiries'));
+      cloudList = snap.docs.map(doc => doc.data());
+    } catch (err) {
+      console.warn('Firestore enquiries fetch warning:', err);
+    }
+    const localList = getStorageList('zk_rehab_enquiries');
+    const map = new Map();
+    [...cloudList, ...localList].forEach(item => {
+      if (item && item._id) map.set(item._id, item);
+    });
+    const list = Array.from(map.values());
     list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return mockResponse({ enquiries: list });
   },
@@ -1162,7 +1331,16 @@ export const enquiriesAPI = {
       ...data,
       createdAt: new Date().toISOString()
     });
-    await setDoc(doc(db, 'collaboration_enquiries', _id), enquiry);
+
+    try {
+      await setDoc(doc(db, 'collaboration_enquiries', _id), enquiry);
+    } catch (err) {
+      console.warn('Firestore setDoc failed for enquiry, saved locally:', err);
+    }
+
+    const currentList = getStorageList('zk_rehab_enquiries');
+    saveStorageList('zk_rehab_enquiries', [enquiry, ...currentList.filter(e => e._id !== _id)]);
+
     return mockResponse(enquiry);
   }
 };

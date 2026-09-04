@@ -765,10 +765,14 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
       await collaborationsAPI.create(newPartner);
       alert('Partner listed successfully and published to the public collaborations page!');
-      fetchData('enquiries');
+      try {
+        await fetchData('enquiries');
+      } catch (refreshErr) {
+        console.warn('Enquiries refresh warning:', refreshErr);
+      }
     } catch (err) {
       console.error('Error listing partner from enquiry:', err);
-      alert(`Partner could not be saved.\nPlease try again.`);
+      alert(`Partner could not be saved: ${err.message || 'Please try again.'}`);
     }
   };
 
@@ -1552,10 +1556,14 @@ const CollaborationsManager = ({ collaborations = [], campaigns = [], registrati
 
       setEditingCollab(null);
       setShowAddForm(false);
-      await onRefresh();
+      try {
+        await onRefresh();
+      } catch (refreshErr) {
+        console.warn("Refresh error after saving partner:", refreshErr);
+      }
     } catch (err) {
       console.error("Database write error saving collaboration partner:", err);
-      alert(`Partner could not be saved.\nPlease try again.`);
+      alert(`Partner could not be saved: ${err.message || 'Please try again.'}`);
     } finally {
       setSubmitting(false);
     }

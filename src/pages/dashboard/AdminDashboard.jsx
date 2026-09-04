@@ -767,9 +767,11 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
       alert('Partner listed successfully and published to the public collaborations page!');
       fetchData('enquiries');
     } catch (err) {
-      alert(`Error listing partner: ${err.message}`);
+      console.error('Error listing partner from enquiry:', err);
+      alert(`Partner could not be saved.\nPlease try again.`);
     }
   };
+
 
   const handleToggleActive = async (userId, currentStatus) => {
     try {
@@ -1523,7 +1525,7 @@ const CollaborationsManager = ({ collaborations = [], campaigns = [], registrati
         if (key === 'servicesOffered') {
           formData.append(key, JSON.stringify(form[key]));
         } else {
-          formData.append(key, form[key]);
+          formData.append(key, form[key] !== undefined ? form[key] : '');
         }
       });
       
@@ -1550,9 +1552,10 @@ const CollaborationsManager = ({ collaborations = [], campaigns = [], registrati
 
       setEditingCollab(null);
       setShowAddForm(false);
-      onRefresh();
+      await onRefresh();
     } catch (err) {
-      alert(`Error saving collaboration: ${err.message}`);
+      console.error("Database write error saving collaboration partner:", err);
+      alert(`Partner could not be saved.\nPlease try again.`);
     } finally {
       setSubmitting(false);
     }
